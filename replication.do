@@ -9,6 +9,8 @@ set more off
 cap log close
 cls
 
+// prueba para ver si se guarda en github
+
 
 *** User path: (change accordingly) [Here goes to the dropbox folder]
 global user "/Users/`c(username)'/OneDrive/Escritorio/Andes/Microeconomía/Economía Urbana/Trabajo final/Replication data-The Wrong Side(s) of the Tracks/"
