@@ -146,12 +146,13 @@ reg ln90w10b herf lenper if closeness<-400, robust /*OLS regression to test for 
 reg ln90b10w herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between well-off blacks (those in the 90th percentile of income distribution) and worst-off whites (those in the 10th percentile of income distribution) in cities far from the South. */
 
 
-*table 3
+****table 3****
+/*Table 3 regressions are robustness checks that replicate the main 2SLS estimates of the effect of segregation (dism1990) on black and white Gini indexes and poverty rates while controlling for different city characteristics. These are done to prove that the relationship between the instrument (herf) and the outcomes of interest is only induced through segregation and not through other characteristics. hese regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity. */
 
-ivreg lngini_w (dism1990=herf) lenper pop1990, robust
-ivreg lngini_b (dism1990=herf) lenper pop1990, robust
-ivreg povrate_w (dism1990=herf) lenper pop1990, robust
-ivreg povrate_b (dism1990=herf) lenper pop1990, robust
+ivreg lngini_w (dism1990=herf) lenper pop1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w) in table 2, but controlling for 1990 population (pop1990). */
+ivreg lngini_b (dism1990=herf) lenper pop1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, but controlling for 1990 population (pop1990). */
+ivreg povrate_w (dism1990=herf) lenper pop1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for 1990 population (pop1990). */
+ivreg povrate_b (dism1990=herf) lenper pop1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for 1990 population (pop1990). */
 
 ivreg lngini_w (dism1990=herf) lenper pctbk1990, robust
 ivreg lngini_b (dism1990=herf) lenper pctbk1990, robust
