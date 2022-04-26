@@ -227,16 +227,18 @@ ivreg povrate_w (dism1990=herf) lenper herfscore, robust /*Same especification a
 ivreg povrate_b (dism1990=herf) lenper herfscore, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for a propensity score for the probability of having an above-median RDI (herfscore). */
 
 
-*table 4
+****table 4****
+/*The eight following regressions are OLS estimates of the effect of segregation (dism1990) on 1990 city demand variables. These regressions will produce biased results since they don't take into account that segregation is endogenous. Therefore, estimates from these regressions will underestimate the effect of segregation on 1990 city demand. The standard errors are robust to heteroskedasticity. */
 
-reg mv_st_winus_w dism1990, robust
-reg mv_st_winus_b dism1990, robust
-reg medgrent_w dism1990, robust
-reg medgrent_b dism1990, robust
-reg medgrentpinc_w dism1990, robust
-reg medgrentpinc_b dism1990, robust
-reg mt1proom_w dism1990, robust
-reg mt1proom_b dism1990, robust
+
+reg mv_st_winus_w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on  the percent of residents who are white in-migrants (mv_st_winus_w). */
+reg mv_st_winus_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on  the percent of residents who are black in-migrants (mv_st_winus_b). */
+reg medgrent_w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the median rent for whites (medgrent_w). */
+reg medgrent_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the median rent for blacks (medgrent_b). */
+reg medgrentpinc_w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the median rent as a percent of income for whites (medgrentpinc_w). */
+reg medgrentpinc_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the median rent as a percent of income for blacks (medgrentpinc_b). */
+reg mt1proom_w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w). */
+reg mt1proom_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w). */
 
 
 ivreg mv_st_winus_w (dism1990=herf) lenper, robust
