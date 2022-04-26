@@ -14,13 +14,15 @@ global codes "$user/Codes"
 
 *Data
 global data "$user/Data"
+global raw "$data/Raw"
+global modified "$data/Modified"
 
 
 * Results - tables
 global results "$user/Results"
 
 
-use "$data/aej_maindata.dta", clear /* Load the data provided by the author.*/
+use "$raw/aej_maindata.dta", clear /* Load the data provided by the author.*/
 /*The next lines of code are added to label data and have a better idea of the variables that are being used*/
 label var dism1990 "Dissimilarity Index that captures level of racial segreation in 1990 "
 label var herf "RDI - quantifies the extent to which the city's land is divided into smaller units by railroads"
@@ -50,7 +52,9 @@ label var ln90b10w "Between-race inequality- 90 black: 10 white"
 label var pop1990 "Population in 1990"
 label var pctbk1990 "Percent of black population in 1990"
 label var hsdrop_w "Percentage of whites High school drop outs" /*I'm not sure about this one, but following the paper and the code it might be.*/
-label var collgrad_b "Percentage of blacks that graduated college" /*I'm not sure about this one, but following the paper and the code it might be.*/
+label var hsgrad_w "Share of whites who are high school graduates"
+label var somecoll_w "Share of whites who have some college"
+label var collgrad_w "Share of whites that graduated college" /*I'm not sure about this one, but following the paper and the code it might be.*/
 label var manshr "Share employed in manufacturing"
 label var lfp_w "White labor force participation"
 label var lfp_b "Black labor force participation"
@@ -66,10 +70,12 @@ label var medgrentpinc_w "Median rent as a percentage of income for whites"
 label var medgrentpinc_b "Median rent as a percentage of income for blacks"
 label var mt1proom_w "Share of white households with more than one person per room"
 label var mt1proom_b "Share of black households with more than one person per room"
-label var hsdrop "Share who are high school dropouts"
-label var hsgrad "Share who are high school graduates"
-label var somecoll "Share who have some college"
-label var collgrad "Share who are college graduates"
+label var hsdrop_b "Share of blacks who are high school dropouts"
+label var hsgrad_b "Share of blacks who are high school graduates"
+label var somecoll_b "Share of blacks who have some college"
+label var collgrad_b "Share of blacks who are college graduates"
+
+save "$modified/aej_maindata_modified.dta", replace /*Save data with labels to a new dataset.*/
 
 ****table 1**** 
 
