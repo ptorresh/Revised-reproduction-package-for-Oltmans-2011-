@@ -334,9 +334,10 @@ reg collgrad herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*F
 
 
 
-*table A1
+**** table A1 ****
 
-use table_A1.dta
+use "$raw/table_A1.dta", clear /*Load dataset that has the information for table A1. This is a table presented in the paper's appendix.*/
 *all data from CGV, except indicator for "in my sample"
+des /*Include code to describe the data*/
 
-for var pop1890-central: ttest X, by(sample)
+for var pop1890-central: ttest X, by(sample) /*This code is to perform ttest for each variable in the dataset between in an out of sample. It is not clear which value of the variable "sample" represents the in sample and which value represents the out sample. */
