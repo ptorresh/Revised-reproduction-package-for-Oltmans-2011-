@@ -71,21 +71,29 @@ label var hsgrad "Share who are high school graduates"
 label var somecoll "Share who have some college"
 label var collgrad "Share who are college graduates"
 
-*table 1
-reg dism1990 herf lenper, robust 
-reg area1910 herf lenper, robust
-reg count1910 herf lenper, robust
-reg ethseg10 herf lenper, robust
-reg ethiso10 herf lenper, robust
-reg black1910 herf lenper, robust
-reg passpc herf lenper, robust
-reg black1920 herf lenper, robust
-reg ctyliterate1920 herf lenper, robust
-reg lfp1920 herf lenper, robust
-reg ctytrade_wkrs1920 herf lenper, robust
-reg ctymanuf_wkrs1920 herf lenper, robust
-reg ctyrail_wkrs1920 herf lenper, robust
-reg incseg herf lenper, robust
+****table 1**** 
+
+/*All of the following regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. Also, standard errors are robust to heteroskedasticity */
+reg dism1990 herf lenper, robust /* This is the first stage regression that proofs the relevance assumption that states that the the instrument (herf) must generate a significant level of racial segregation (dism1990). */
+
+/*The following 6 regressions are falsification checks that test the predictive power of the instrument (herf) on a small sampling of characteristics of cities prior to the start of the Great Migration. These are done to proof that the exclusion restriction holds. */
+reg area1910 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects a city's physical area in 1910 (square miles/1000) (area1910) */
+reg count1910 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the population in 1910 (count1910) */
+reg ethseg10 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the ethnic dissimilarity index in 1910 (ethseg10)*/
+reg ethiso10 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the ethnic isolation index in 1910 (ethiso10)*/
+reg black1910 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the percentage of black population in 1910 (black1910)*/
+reg passpc herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the stret-cars per cap in 1910 (passpc)*/
+
+/*The following 6 regressions are falsification checks that test for the possibility that there existed initial selection to the cities by examining the human capital characteristics of cities in 1920 (after the first wave of the Great Migration and before segregation could begin to have noticeable effects on human capital). These are done to proof that the independence assumption holds. */
+reg black1920 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the percentage of black population in 1920 (black1920)*/
+reg ctyliterate1920 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the percentage of literates in 1920 (ctyliterate1920)*/
+reg lfp1920 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects labor force participation in 1920 (lfp1920)*/
+reg ctytrade_wkrs1920 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the percentage of employment in trade in 1920 (ctytrade_wkrs1920)*/
+reg ctymanuf_wkrs1920 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the percentage of employment in manufacturing in 1920 (ctymanuf_wkrs1920)*/
+reg ctyrail_wkrs1920 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects percentage of employment in railroads in 1920 (ctyrail_wkrs1920)*/
+
+
+reg incseg herf lenper, robust /*The purpose of this regresion is to show that during the year of analysis (1990) the instrument (herf) does not predict income segregation (incseg) and thus the instrument only affects the dependent variables through segregation and not through some other mechanism (like income segregation).*/
 
 *table 2, panel 1
 reg lngini_w dism1990, robust
