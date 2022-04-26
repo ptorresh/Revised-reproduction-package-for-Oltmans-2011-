@@ -166,10 +166,10 @@ ivreg povrate_w (dism1990=herf) lenper hsdrop_w- collgrad_b, robust /*Same espec
 ivreg povrate_b (dism1990=herf) lenper hsdrop_w- collgrad_b, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for all the variables related to education in 1990 (high school drop-out and graduation, some college and college graduate both for blacks and whites.) However, due to multicollinearity, two of the variables (white high school grad and black college grad) are omitted. Therefore, the right specification should exclude a baseline education category for the black population and a baseline education cateogry for the white population to avoid the perfect multicollinearity that exists between these variables. */
 
 
-ivreg lngini_w (dism1990=herf) lenper manshr, robust
-ivreg lngini_b (dism1990=herf) lenper manshr, robust
-ivreg povrate_w (dism1990=herf) lenper manshr, robust
-ivreg povrate_b (dism1990=herf) lenper manshr, robust
+ivreg lngini_w (dism1990=herf) lenper manshr, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w) in table 2, but controlling for the share employed in manufacturing (manshr). */
+ivreg lngini_b (dism1990=herf) lenper manshr, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, but controlling for the share employed in manufacturing (manshr). */
+ivreg povrate_w (dism1990=herf) lenper manshr, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for the share employed in manufacturing (manshr).  */
+ivreg povrate_b (dism1990=herf) lenper manshr, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for the share employed in manufacturing (manshr). */
  
 
 ivreg lngini_w (dism1990=herf) lenper lfp_w lfp_b, robust
