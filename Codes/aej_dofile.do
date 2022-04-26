@@ -23,6 +23,9 @@ global results "$user/Results"
 
 
 use "$raw/aej_maindata.dta", clear /* Load the data provided by the author.*/
+
+des /*Include code to describe the data*/
+
 /*The next lines of code are added to label data and have a better idea of the variables that are being used*/
 label var dism1990 "Dissimilarity Index that captures level of racial segreation in 1990 "
 label var herf "RDI - quantifies the extent to which the city's land is divided into smaller units by railroads"
@@ -271,9 +274,26 @@ reg medgrentpinc_b herf lenper if closeness<-400, robust /*Falsification test of
 reg mt1proom_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of white households with more than one person per room (mt1proom_w) */
 reg mt1proom_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of black households with more than one person per room (mt1proom_b) */
 
-*table 5
 
-use table_5
+
+****table 5 ****
+/*Table 5 uses a different dataset. The purpose of this data is to analyze the effect of 1980 segregation (dism1980) on human capital of 22 to 30 year olds in 1980.*/
+
+use "$raw/table_5.dta", clear /*Load dataset that has the information for table 5*/
+des /*Include code to describe the data*/
+
+/*Label variables based on the paper*/
+label var hsdrop "Share who are high school dropouts"
+label var hsgrad "Share who are high school graduates"
+label var somecoll "Share who have some college"
+label var collgrad "Share who are college graduates"
+label var dism1980 "Dissimilarity Index that captures level of racial segreation in 1980"
+label var black "1 if black"
+label var name "City name"
+label var herf "RDI - quantifies the extent to which the city's land is divided into smaller units by railroads"
+label var lenper "Track lenght per square kilometer"
+
+save "$modified/table_5_modified.dta", replace /*Save modified data*/
 
 reg hsdrop dism1980 agedum* if black==0, cluster(name)
 reg hsdrop dism1980 agedum* if black==1, cluster(name)
@@ -303,6 +323,10 @@ reg somecoll herf lenper agedum* if black==0 & closeness<-400, cluster(name)
 reg somecoll herf lenper agedum* if black==1 & closeness<-400, cluster(name)
 reg collgrad herf lenper agedum* if black==0 & closeness<-400, cluster(name)
 reg collgrad herf lenper agedum* if black==1 & closeness<-400, cluster(name)
+
+
+
+
 *table A1
 
 use table_A1.dta
