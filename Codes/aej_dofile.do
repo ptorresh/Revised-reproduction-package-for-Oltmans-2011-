@@ -95,38 +95,55 @@ reg ctyrail_wkrs1920 herf lenper, robust /*OLS regression to analyze how the ins
 
 reg incseg herf lenper, robust /*The purpose of this regresion is to show that during the year of analysis (1990) the instrument (herf) does not predict income segregation (incseg) and thus the instrument only affects the dependent variables through segregation and not through some other mechanism (like income segregation).*/
 
-*table 2, panel 1
-reg lngini_w dism1990, robust
-reg lngini_b dism1990, robust
-reg povrate_w dism1990, robust
-reg povrate_b dism1990, robust
 
-ivreg lngini_w (dism1990=herf) lenper, robust
-ivreg lngini_b (dism1990=herf) lenper, robust
-ivreg povrate_w (dism1990=herf) lenper, robust
-ivreg povrate_b (dism1990=herf) lenper, robust
 
-reg lngini_w herf lenper if closeness<-400, robust
-reg lngini_b herf lenper if closeness<-400, robust
-reg povrate_w herf lenper if closeness<-400, robust
-reg povrate_b herf lenper if closeness<-400, robust
+****table 2, panel 1****
+/*The four following regressions are OLS estimations of the effect of segregation (dism1990) on within-race poverty and inequality. The standard errors are robust to heteroskedasticity. These regressions are not accounting for endogeneity in segregation. Therefore, the coefficients will be biased and will underestimate the effect of segregation.*/
+reg lngini_w dism1990, robust /*OLS regression to estimate the effect of segregation (dism1990) on the natural logarithm of the Gini index for whites (lngini_w). Note: it is not clear why the author uses the ln transformation of the Gini instead of the original index.*/
+reg lngini_b dism1990, robust /*OLS regression to estimate the effect of segregation (dism1990) on the natural logarithm of the Gini index for blacks (lngini_b). Note: it is not clear why the author uses the ln transformation of the Gini instead of the original index.*/
+reg povrate_w dism1990, robust /*OLS regression to estimate the effect of segregation (dism1990) on the poverty rate of the white population (povrate_w). */
+reg povrate_b dism1990, robust /*OLS regression to estimate the effect of segregation (dism1990) on the poverty rate of the black population (povrate_b). */
 
-*table 2, panel 2
 
-reg ln90w90b dism1990, robust
-reg ln10w10b dism1990, robust
-reg ln90w10b dism1990, robust
-reg ln90b10w dism1990, robust
+/*The four following regressions are IV estimations of the effect of segregation (dism1990) on within-race poverty and inequality. The Railroad Division Index (herf) is used as an instrumental variable of segregation (dism1990) to recover the causal effect of segregation on the outcomes of interest. These regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity.*/
+ivreg lngini_w (dism1990=herf) lenper, robust /*IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w). Note: it is not clear why the author uses the ln transformation of the Gini instead of the original index. The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and the gini index (lngini_w).*/
+ivreg lngini_b (dism1990=herf) lenper, robust /*IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b). Note: it is not clear why the author uses the ln transformation of the Gini instead of the original index. The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and the gini index (lngini_b).*/
+ivreg povrate_w (dism1990=herf) lenper, robust /*IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate of the white population (povrate_w). The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and the poverty rate (povrate_w).*/
+ivreg povrate_b (dism1990=herf) lenper, robust /*IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate of the black population (povrate_b). The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and the poverty rate (povrate_b).*/
 
-ivreg ln90w90b (dism1990=herf) lenper, robust
-ivreg ln10w10b (dism1990=herf) lenper, robust
-ivreg ln90w10b (dism1990=herf) lenper, robust
-ivreg ln90b10w (dism1990=herf) lenper, robust
 
-reg ln90w90b herf lenper if closeness<-400, robust
-reg ln10w10b herf lenper if closeness<-400, robust
-reg ln90w10b herf lenper if closeness<-400, robust
-reg ln90b10w herf lenper if closeness<-400, robust
+/*The four following regressions are falsification checks to prove that the instrument (herf) does not affect the outcomes of interest in cities far from the South. This is done to test for the possibility that the Railroad Index is affecting poverty and inequality directly rather than only through racial residential segregation. These falsification checks are performed with cities far from the South (closeness<-400) since those areas were minimally affected by the Great Migration. These regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity.*/
+reg lngini_w herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality within the white population (lngini_w) in cities far from the South. */
+reg lngini_b herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality within the black population (lngini_b) in cities far from the South. */
+reg povrate_w herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting the poverty rate within the white population (povrate_w) in cities far from the South. */
+reg povrate_b herf lenper if closeness<-400, robust  /*OLS regression to test for the possibility that RDI is directly affecting the poverty rate within the black population (povrate_b) in cities far from the South. */
+
+
+
+****table 2, panel 2****
+/*The four following regressions are OLS estimations to examine the effect of segregation (dism1990) on inequality between blacks and whites. Note: it is not clear how the author constructed the variables of interest or how they capture between race inequality. The standard errors are robust to heteroskedasticity. */
+
+reg ln90w90b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on inequality between well-off whites and well-off blacks (those in the 90th percentile of each income distribution).*/
+reg ln10w10b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on inequality between worst-off whites and worst-off blacks (those in the 10th percentile of each income distribution).*/
+reg ln90w10b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on inequality between well-off whites (those in the 90th percentile of income distribution) and worst-off blacks (those in the 10th percentile of income distribution).*/
+reg ln90b10w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on inequality between well-off blacks (those in the 90th percentile of income distribution) and worst-off whites (those in the 10th percentile of income distribution).*/ 
+
+
+/*The four following regressions are IV estimations to examine the effect of segregation (dism1990) on inequality between blacks and whites. Note: it is not clear how the author constructed the variables of interest or how they capture between race inequality. The Railroad Division Index (herf) is used as an instrumental variable of segregation (dism1990) to recover the causal effect of segregation on the outcomes of interest. These regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity. */
+
+ivreg ln90w90b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on inequality between well-off whites and well-off blacks (those in the 90th percentile of each income distribution). The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and between-race inequality */
+ivreg ln10w10b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on inequality between worst-off whites and worst-off blacks (those in the 10th percentile of each income distribution). The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and between-race inequality */
+ivreg ln90w10b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on inequality between well-off whites (those in the 90th percentile of income distribution) and worst-off blacks (those in the 10th percentile of income distribution).The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and between-race inequality */
+ivreg ln90b10w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on inequality between well-off blacks (those in the 90th percentile of income distribution) and worst-off whites (those in the 10th percentile of income distribution). The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and between-race inequality */
+
+
+
+/*The four following regressions are falsification checks to prove that the instrument (herf) does not affect the outcomes of interest in cities far from the South. This is done to test for the possibility that the Railroad Index is affecting between-race inequality directly, rather than only through racial residential segregation. These falsification checks are performed with cities far from the South (closeness<-400) since those areas were minimally affected by the Great Migration. These regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity.*/
+
+reg ln90w90b herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between well-off whites and well-off blacks (those in the 90th percentile of each income distribution) in cities far from the South. */
+reg ln10w10b herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between worst-off whites and worst-off blacks (those in the 10th percentile of each income distribution) in cities far from the South. */
+reg ln90w10b herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between well-off whites (those in the 90th percentile of income distribution) and worst-off blacks (those in the 10th percentile of income distribution) in cities far from the South. */
+reg ln90b10w herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between well-off blacks (those in the 90th percentile of income distribution) and worst-off whites (those in the 10th percentile of income distribution) in cities far from the South. */
 
 
 *table 3
