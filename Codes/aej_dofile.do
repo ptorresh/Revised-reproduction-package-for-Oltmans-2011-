@@ -154,6 +154,7 @@ ivreg lngini_b (dism1990=herf) lenper pop1990, robust /*Same especification as t
 ivreg povrate_w (dism1990=herf) lenper pop1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for 1990 population (pop1990). */
 ivreg povrate_b (dism1990=herf) lenper pop1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for 1990 population (pop1990). */
 
+
 ivreg lngini_w (dism1990=herf) lenper pctbk1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w) in table 2, but controlling for percent of black population in 1990 (pctbk1990). */
 ivreg lngini_b (dism1990=herf) lenper pctbk1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, but controlling for percent of black population in 1990 (pctbk1990). */
 ivreg povrate_w (dism1990=herf) lenper pctbk1990, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for percent of black population in 1990 (pctbk1990). */
@@ -191,10 +192,10 @@ ivreg povrate_b (dism1990=herf) lenper count1920, robust /*Same especification a
 
 
 
-ivreg lngini_w (dism1990=herf) lenper black1920, robust
-ivreg lngini_b (dism1990=herf) lenper black1920, robust
-ivreg povrate_w (dism1990=herf) lenper black1920, robust
-ivreg povrate_b (dism1990=herf) lenper black1920, robust
+ivreg lngini_w (dism1990=herf) lenper black1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w) in table 2, but controlling for percent of black population in 1920 (black1920). */
+ivreg lngini_b (dism1990=herf) lenper black1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, but controlling for percent of black population in 1920 (black1920). */
+ivreg povrate_w (dism1990=herf) lenper black1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for percent of black population in 1920 (black1920). */
+ivreg povrate_b (dism1990=herf) lenper black1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for percent of black population in 1920 (black1920). */
 
 
 
