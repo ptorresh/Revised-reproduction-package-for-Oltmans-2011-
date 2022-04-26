@@ -21,9 +21,58 @@ global results "$user/Results"
 
 
 use "$data/aej_maindata.dta", clear /* Load the data provided by the author.*/
+/*The next lines of code are added to label data and have a better idea of the variables that are being used*/
+label var dism1990 "Dissimilarity Index that captures level of racial segreation in 1990 "
+label var herf "RDI - quantifies the extent to which the city's land is divided into smaller units by railroads"
+label var lenper "Track lenght per square kilometer"
+label var area1910 "Physical area (square miles/1000) in 1910"
+label var count1910 "Population in 1910"
+label var ethseg10 "Ethnic dissimilarity index in 1910"
+label var ethiso10 "Ethnic isolation index in 1910"
+label var black1910 "Percent black population in 1910"
+label var passpc "Street cars in 1915"
+label var black1920 "Percent black population in 1920"
+label var ctyliterate1920 "Percent of literate population in 1920"
+label var lfp1920 "Labor force participation in 1920"
+label var ctytrade_wkrs1920 "Percent of employment in trade in 1920"
+label var ctymanuf_wkrs1920 "Percent of employment in manufacturing in 1920"
+label var ctyrail_wkrs1920 "Percent of employment in railroads in 1920"
+label var incseg "Income segregation in 1990"
+label var lngini_w "ln of the gini index for the white population in 1990" 
+label var lngini_b "ln of the gini index for the black population in 1990"
+label var povrate_w "poverty rate for the white population in 1990"
+label var povrate_b "poverty rate for the black population in 1990"
+label var closeness "Closeness to the South"
+label var ln90w90b "Between-race inequality- 90 white: 90 black"
+label var ln10w10b "Between-race inequality- 10 white: 10 black"
+label var ln90w10b "Between-race inequality- 90 white: 10 black"
+label var ln90b10w "Between-race inequality- 90 black: 10 white"
+label var pop1990 "Population in 1990"
+label var pctbk1990 "Percent of black population in 1990"
+label var hsdrop_w "Percentage of whites High school drop outs" /*I'm not sure about this one, but following the paper and the code it might be.*/
+label var collgrad_b "Percentage of blacks that graduated college" /*I'm not sure about this one, but following the paper and the code it might be.*/
+label var manshr "Share employed in manufacturing"
+label var lfp_w "White labor force participation"
+label var lfp_b "Black labor force participation"
+label var ngov "Number of local governments (N = 69)"
+label var count1920 "Population in 1920"
+label var black1920 "Percentage of black population in 1920"
+label var herfscore "Propensity score"
+label var mv_st_winus_w "Percentage of white residents who are in-migrants"
+label var mv_st_winus_b "Percentage of black residents who are in-migrants"
+label var medgrent_w "Median rent for whites"
+label var medgrent_b "Median rent for blacks"
+label var medgrentpinc_w "Median rent as a percentage of income for whites"
+label var medgrentpinc_b "Median rent as a percentage of income for blacks"
+label var mt1proom_w "Share of white households with more than one person per room"
+label var mt1proom_b "Share of black households with more than one person per room"
+label var hsdrop "Share who are high school dropouts"
+label var hsgrad "Share who are high school graduates"
+label var somecoll "Share who have some college"
+label var collgrad "Share who are college graduates"
 
 *table 1
-reg dism1990 herf lenper, robust
+reg dism1990 herf lenper, robust 
 reg area1910 herf lenper, robust
 reg count1910 herf lenper, robust
 reg ethseg10 herf lenper, robust
@@ -31,11 +80,11 @@ reg ethiso10 herf lenper, robust
 reg black1910 herf lenper, robust
 reg passpc herf lenper, robust
 reg black1920 herf lenper, robust
-reg  ctyliterate1920 herf lenper, robust
-reg  lfp1920 herf lenper, robust
-reg  ctytrade_wkrs1920 herf lenper, robust
-reg  ctymanuf_wkrs1920 herf lenper, robust
-reg  ctyrail_wkrs1920 herf lenper, robust
+reg ctyliterate1920 herf lenper, robust
+reg lfp1920 herf lenper, robust
+reg ctytrade_wkrs1920 herf lenper, robust
+reg ctymanuf_wkrs1920 herf lenper, robust
+reg ctyrail_wkrs1920 herf lenper, robust
 reg incseg herf lenper, robust
 
 *table 2, panel 1
