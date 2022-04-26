@@ -252,14 +252,18 @@ ivreg medgrentpinc_b (dism1990=herf) lenper, robust /*IV regression to identify 
 ivreg mt1proom_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
 ivreg mt1proom_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
 
-reg mv_st_winus_w herf lenper if closeness<-400, robust
-reg mv_st_winus_b herf lenper if closeness<-400, robust
-reg medgrent_w herf lenper if closeness<-400, robust
-reg medgrent_b herf lenper if closeness<-400, robust
-reg medgrentpinc_w herf lenper if closeness<-400, robust
-reg medgrentpinc_b herf lenper if closeness<-400, robust
-reg mt1proom_w herf lenper if closeness<-400, robust
-reg mt1proom_b herf lenper if closeness<-400, robust
+
+
+/*The eight following regressions are falsification tests of the relationship between RDI (herf) and city demand in cities far from the South (closeness<-400). These estimations are done to prove that the instrument has no direct effect on city demand. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity. */
+
+reg mv_st_winus_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and the percent of residents who are white in-migrants (mv_st_winus_w). */
+reg mv_st_winus_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and  the percent of residents who are black in-migrants (mv_st_winus_b) */
+reg medgrent_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent for whites (medgrent_w) */ 
+reg medgrent_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent for blacks (medgrent_b) */ 
+reg medgrentpinc_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent as a percent of income for whites (medgrentpinc_w) */
+reg medgrentpinc_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent as a percent of income for blacks (medgrentpinc_b) */
+reg mt1proom_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of white households with more than one person per room (mt1proom_w) */
+reg mt1proom_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of black households with more than one person per room (mt1proom_b) */
 
 *table 5
 
