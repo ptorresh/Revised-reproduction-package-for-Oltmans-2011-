@@ -221,10 +221,10 @@ ivreg povrate_b (dism1990=herf) lenper lfp1920, robust /*Same especification as 
 
 
 
-ivreg lngini_w (dism1990=herf) lenper herfscore, robust
-ivreg lngini_b (dism1990=herf) lenper herfscore, robust
-ivreg povrate_w (dism1990=herf) lenper herfscore, robust
-ivreg povrate_b (dism1990=herf) lenper herfscore, robust
+ivreg lngini_w (dism1990=herf) lenper herfscore, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w) in table 2, but controlling for a propensity score for the probability of having an above-median RDI (herfscore). */
+ivreg lngini_b (dism1990=herf) lenper herfscore, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, but controlling for a propensity score for the probability of having an above-median RDI (herfscore). */
+ivreg povrate_w (dism1990=herf) lenper herfscore, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for a propensity score for the probability of having an above-median RDI (herfscore). */
+ivreg povrate_b (dism1990=herf) lenper herfscore, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for a propensity score for the probability of having an above-median RDI (herfscore). */
 
 
 *table 4
