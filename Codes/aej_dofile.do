@@ -184,11 +184,10 @@ ivreg povrate_w (dism1990=herf) lenper ngov, robust /*Same especification as the
 ivreg povrate_b (dism1990=herf) lenper ngov, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for the number of local governments (N=69). */ 
 
 
-
-ivreg lngini_w (dism1990=herf) lenper count1920, robust
-ivreg lngini_b (dism1990=herf) lenper count1920, robust
-ivreg povrate_w (dism1990=herf) lenper count1920, robust
-ivreg povrate_b (dism1990=herf) lenper count1920, robust
+ivreg lngini_w (dism1990=herf) lenper count1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w) in table 2, but controlling for 1920 population (count1920). */
+ivreg lngini_b (dism1990=herf) lenper count1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, but controlling for 1920 population (count1920). */
+ivreg povrate_w (dism1990=herf) lenper count1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for 1920 population (count1920). */ 
+ivreg povrate_b (dism1990=herf) lenper count1920, robust /*Same especification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for 1920 population (count1920). */
 
 
 
