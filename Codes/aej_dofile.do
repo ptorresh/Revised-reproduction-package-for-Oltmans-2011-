@@ -238,17 +238,19 @@ reg medgrent_b dism1990, robust /*OLS regression to identify the effect of segre
 reg medgrentpinc_w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the median rent as a percent of income for whites (medgrentpinc_w). */
 reg medgrentpinc_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the median rent as a percent of income for blacks (medgrentpinc_b). */
 reg mt1proom_w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w). */
-reg mt1proom_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w). */
+reg mt1proom_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b). */
 
 
-ivreg mv_st_winus_w (dism1990=herf) lenper, robust
-ivreg mv_st_winus_b (dism1990=herf) lenper, robust
-ivreg medgrent_w (dism1990=herf) lenper, robust
-ivreg medgrent_b (dism1990=herf) lenper, robust
-ivreg medgrentpinc_w (dism1990=herf) lenper, robust
-ivreg medgrentpinc_b (dism1990=herf) lenper, robust
-ivreg mt1proom_w (dism1990=herf) lenper, robust
-ivreg mt1proom_b (dism1990=herf) lenper, robust
+/*The eight following regressions are IV estimates of the effect of segregation (dism1990) on 1990 city demand variables. The RDI (herf) is the instrumental variable that allows to capture the causal effect of segregation on 1990 city demand variables. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track.  The standard errors are robust to heteroskedasticity. */
+
+ivreg mv_st_winus_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on  the percent of residents who are white in-migrants (mv_st_winus_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg mv_st_winus_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on  the percent of residents who are black in-migrants (mv_st_winus_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrent_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent for whites (medgrent_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrent_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent for blacks (medgrent_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrentpinc_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent as a percent of income for whites (medgrentpinc_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrentpinc_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent as a percent of income for blacks (medgrentpinc_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg mt1proom_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg mt1proom_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
 
 reg mv_st_winus_w herf lenper if closeness<-400, robust
 reg mv_st_winus_b herf lenper if closeness<-400, robust
