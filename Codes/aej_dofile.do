@@ -20,6 +20,7 @@ global modified "$data/Modified"
 
 * Results - tables
 global results "$user/Results"
+global tables "$results/Tables"
 
 
 use "$raw/aej_maindata.dta", clear /* Load the data provided by the author.*/
@@ -79,6 +80,7 @@ label var somecoll_b "Share of blacks who have some college"
 label var collgrad_b "Share of blacks who are college graduates"
 
 save "$modified/aej_maindata_modified.dta", replace /*Save data with labels to a new dataset.*/
+use "$modified/aej_maindata_modified.dta", clear /*Use modified data*/
 
 ****table 1**** 
 
@@ -112,6 +114,88 @@ reg lngini_w dism1990, robust /*OLS regression to estimate the effect of segrega
 reg lngini_b dism1990, robust /*OLS regression to estimate the effect of segregation (dism1990) on the natural logarithm of the Gini index for blacks (lngini_b). Note: it is not clear why the author uses the ln transformation of the Gini instead of the original index.*/
 reg povrate_w dism1990, robust /*OLS regression to estimate the effect of segregation (dism1990) on the poverty rate of the white population (povrate_w). */
 reg povrate_b dism1990, robust /*OLS regression to estimate the effect of segregation (dism1990) on the poverty rate of the black population (povrate_b). */
+
+/*The following code exports the previos four regressions into a .tex table. Basically, it exports the OLS regressions from table 2, panel 1. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+
+*Define table content 
+cd "$tables"
+
+*Number of table
+local tab `i'
+di "`tab'"
+
+estimates clear
+local c = 1
+	
+foreach var of varlist lngini_w lngini_b povrate_w  povrate_b {	
+
+
+		foreach con in dism1990 {	
+
+			eststo regs`c': reg `var' `con', r
+
+			
+qui sum `e(depvar)' if e(sample) 
+local medi `r(mean)'
+
+estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
+qui unique name if e(sample) // Contamos cuantas observaciones hay.
+estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+
+local estimates`c' `estimates1' regs`c'
+
+			local c = `c'+1
+		}
+	}
+	
+	
+
+*Keep coefficients
+local coefs _cons dism1990 /*Run this code with the table */
+
+*-------------------------------------------------------------------------------
+*Tex table
+*Tile of table
+local title_tab "The Effects of Segregation on Poverty and Inequality Amoung Blacks and Whites (OLS)"
+local titles "& \multicolumn{4}{c}{OLS: Effect of 1990 dissimilarity index} \\ \cmidrule{2-5} & \multicolumn{2}{c}{Gini Index} & \multicolumn{2}{c}{Poverty rate} \\"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} & Whites & Blacks & Whites & Blacks  \\ \midrule"
+
+esttab `estimates1'  using "table2.tex", 					     ///
+replace b(3) lines se bookt nodepvars 							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) keep(dism1990) ///
+coeflabels(dism1990 "Dissimilarity Index" ) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
+nonumbers posthead( " `titles'  `numbers' ")                       ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])
+		
+
+esttab `estimates1'  using "table2.tex", 					     ///
+append b(3) plain se bookt nodepvars nonumbers					 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) drop(`coefs')                          ///
+stats(med r2, fmt(3 3 0 0) ///
+labels("Mean Dep. Variable" "R Squared")) ///
+collabels(none) nomtitles posthead(\midrule) ///
+postfoot(\bottomrule[0.5pt]  									 ///
+         \label{tab:table2} 								 ///
+         \end{tabular} 											 ///
+		 \vspace{-13pt} 										 ///
+         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
+         \small 												 ///
+         \item Notes: Gini Index are logged. Robust standard errors in   parentheses  ///
+         \end{tablenotes} 										 ///
+         \end{threeparttable} 									 /// 
+         } 														 ///
+         \end{table})
+
+		 
 
 
 /*The four following regressions are IV estimations of the effect of segregation (dism1990) on within-race poverty and inequality. The Railroad Division Index (herf) is used as an instrumental variable of segregation (dism1990) to recover the causal effect of segregation on the outcomes of interest. These regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity.*/
@@ -153,6 +237,7 @@ reg ln90w90b herf lenper if closeness<-400, robust /*OLS regression to test for 
 reg ln10w10b herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between worst-off whites and worst-off blacks (those in the 10th percentile of each income distribution) in cities far from the South. */
 reg ln90w10b herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between well-off whites (those in the 90th percentile of income distribution) and worst-off blacks (those in the 10th percentile of income distribution) in cities far from the South. */
 reg ln90b10w herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality between well-off blacks (those in the 90th percentile of income distribution) and worst-off whites (those in the 10th percentile of income distribution) in cities far from the South. */
+
 
 
 ****table 3****
