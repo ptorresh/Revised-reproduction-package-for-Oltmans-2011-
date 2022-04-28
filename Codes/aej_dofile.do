@@ -205,6 +205,87 @@ ivreg povrate_w (dism1990=herf) lenper, robust /*IV regression to estimate the c
 ivreg povrate_b (dism1990=herf) lenper, robust /*IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate of the black population (povrate_b). The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and the poverty rate (povrate_b).*/
 
 
+/*The following code exports the previos four regressions into a .tex table. Basically, it exports the OLS regressions from table 2, panel 1. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+
+*Define table content 
+cd "$tables"
+
+*Number of table
+local tab `i'
+di "`tab'"
+
+estimates clear
+local c = 1
+	
+foreach var of varlist lngini_w lngini_b povrate_w  povrate_b {	
+
+
+		foreach con in dism1990 {	
+
+			eststo regs`c': ivreg `var' (`con'=herf) lenper, r
+
+			
+qui sum `e(depvar)' if e(sample) 
+local medi `r(mean)'
+
+estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
+qui unique name if e(sample) // Contamos cuantas observaciones hay.
+estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+
+local estimates`c' `estimates1' regs`c'
+
+			local c = `c'+1
+		}
+	}
+	
+	
+
+*Keep coefficients
+local coefs _cons dism1990 /*Run this code with the table */
+
+*-------------------------------------------------------------------------------
+*Tex table
+*Tile of table
+local title_tab "The Effects of Segregation on Poverty and Inequality Amoung Blacks and Whites (IV)"
+local titles "& \multicolumn{4}{c}{Main results: 2SLS RDI as instrument for 1990 dissimilarity} \\ \cmidrule{2-5} & \multicolumn{2}{c}{Gini Index} & \multicolumn{2}{c}{Poverty rate} \\"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} & Whites & Blacks & Whites & Blacks  \\ \midrule"
+
+esttab `estimates1'  using "table2_IV.tex", 					     ///
+replace b(3) lines se bookt nodepvars 							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) keep(dism1990) ///
+coeflabels(dism1990 "Dissimilarity Index" ) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
+nonumbers posthead( " `titles'  `numbers' ")                       ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])
+		
+
+esttab `estimates1'  using "table2_IV.tex", 					     ///
+append b(3) plain se bookt nodepvars nonumbers					 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) drop(`coefs')                          ///
+stats(med r2, fmt(3 3 0 0) ///
+labels("Mean Dep. Variable" "R Squared")) ///
+collabels(none) nomtitles posthead(\midrule) ///
+postfoot(\bottomrule[0.5pt]  									 ///
+         \label{tab:table2} 								 ///
+         \end{tabular} 											 ///
+		 \vspace{-13pt} 										 ///
+         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
+         \small 												 ///
+         \item Notes: Gini Index are logged. Controls for total track lenght. Robust standard errors in   parentheses.   ///
+         \end{tablenotes} 										 ///
+         \end{threeparttable} 									 /// 
+         } 														 ///
+         \end{table})
+
+
 /*The four following regressions are falsification checks to prove that the instrument (herf) does not affect the outcomes of interest in cities far from the South. This is done to test for the possibility that the Railroad Index is affecting poverty and inequality directly rather than only through racial residential segregation. These falsification checks are performed with cities far from the South (closeness<-400) since those areas were minimally affected by the Great Migration. These regressions control for total track lenght (lenper) to assure that RDI represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity.*/
 reg lngini_w herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality within the white population (lngini_w) in cities far from the South. */
 reg lngini_b herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting inequality within the black population (lngini_b) in cities far from the South. */
