@@ -205,7 +205,7 @@ ivreg povrate_w (dism1990=herf) lenper, robust /*IV regression to estimate the c
 ivreg povrate_b (dism1990=herf) lenper, robust /*IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate of the black population (povrate_b). The RDI (herf) is the instumental variable to recover the exogenous relationship between segregation (dism1990) and the poverty rate (povrate_b).*/
 
 
-/*The following code exports the previos four regressions into a .tex table. Basically, it exports the OLS regressions from table 2, panel 1. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+/*The following code exports the previos four regressions into a .tex table. Basically, it exports the IV regressions from table 2, panel 1. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
 
 *Define table content 
 cd "$tables"
@@ -495,6 +495,86 @@ reg mt1proom_w dism1990, robust /*OLS regression to identify the effect of segre
 reg mt1proom_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b). */
 
 
+/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 4. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+
+*Define table content 
+cd "$tables"
+
+*Number of table
+local tab `i'
+di "`tab'"
+
+estimates clear
+local c = 1
+	
+foreach var of varlist mv_st_winus_w mv_st_winus_b medgrent_w medgrent_b medgrentpinc_w medgrentpinc_b mt1proom_w mt1proom_b {	
+
+
+		foreach con in dism1990 {	
+
+			eststo regs`c': reg `var' `con', r
+
+			
+qui sum `e(depvar)' if e(sample) 
+local medi `r(mean)'
+
+estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
+qui unique name if e(sample) // Contamos cuantas observaciones hay.
+estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+
+local estimates`c' `estimates1' regs`c'
+
+			local c = `c'+1
+		}
+	}
+	
+	
+
+*Keep coefficients
+local coefs _cons dism1990 /*Run this code with the table */
+
+*-------------------------------------------------------------------------------
+*Tex table
+*Tile of table
+local title_tab "The Effects of 1990 Segregation on 1990 City Demand (OLS)"
+local titles " & \multicolumn{2}{c}{\makecell{Outcome: Percent of \\ residents who \\ are in-migrants}} & \multicolumn{2}{c}{Outcome: Median rent} & \multicolumn{2}{c}{\makecell{Outcome: Median rent \\ as a percent of income}} & \multicolumn{2}{c}{\makecell{Outcome: Share of \\ households with more \\ than one person per room}} \\"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
+
+esttab `estimates1'  using "table4_OLS.tex", 					     ///
+replace b(3) lines se bookt nodepvars 							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) keep(dism1990) ///
+coeflabels(dism1990 "Dissimilarity Index" ) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
+nonumbers posthead( " `titles'  `numbers' ")                       ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lcccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])
+		
+
+esttab `estimates1'  using "table4_OLS.tex", 					     ///
+append b(3) plain se bookt nodepvars nonumbers					 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) drop(`coefs')                          ///
+stats(med r2, fmt(3 3 0 0) ///
+labels("Mean Dep. Variable" "R Squared")) ///
+collabels(none) nomtitles posthead(\midrule) ///
+postfoot(\bottomrule[0.5pt]  									 ///
+         \label{tab:table2} 								 ///
+         \end{tabular} 											 ///
+		 \vspace{-13pt} 										 ///
+         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
+         \small 												 ///
+         \item Notes: Robust standard errors in   parentheses.   ///
+         \end{tablenotes} 										 ///
+         \end{threeparttable} 									 /// 
+         } 														 ///
+         \end{table})
+
 /*The eight following regressions are IV estimates of the effect of segregation (dism1990) on 1990 city demand variables. The RDI (herf) is the instrumental variable that allows to capture the causal effect of segregation on 1990 city demand variables. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track.  The standard errors are robust to heteroskedasticity. */
 
 ivreg mv_st_winus_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on  the percent of residents who are white in-migrants (mv_st_winus_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
@@ -586,3 +666,5 @@ use "$raw/table_A1.dta", clear /*Load dataset that has the information for table
 des /*Include code to describe the data*/
 
 for var pop1890-central: ttest X, by(sample) /*This code is to perform ttest for each variable in the dataset between in an out of sample. It is not clear which value of the variable "sample" represents the in sample and which value represents the out sample. */
+
+/*Note: there is no code to replicate the graphs*/
