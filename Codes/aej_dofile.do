@@ -587,6 +587,86 @@ ivreg mt1proom_w (dism1990=herf) lenper, robust /*IV regression to identify the 
 ivreg mt1proom_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
 
 
+/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the 2SLS regressions from table 4. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+
+*Define table content 
+cd "$tables"
+
+*Number of table
+local tab `i'
+di "`tab'"
+
+estimates clear
+local c = 1
+	
+foreach var of varlist mv_st_winus_w mv_st_winus_b medgrent_w medgrent_b medgrentpinc_w medgrentpinc_b mt1proom_w mt1proom_b {	
+
+
+		foreach con in dism1990 {	
+
+			eststo regs`c': ivreg `var' (`con'=herf) lenper, r
+
+			
+qui sum `e(depvar)' if e(sample) 
+local medi `r(mean)'
+
+estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
+qui unique name if e(sample) // Contamos cuantas observaciones hay.
+estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+
+local estimates`c' `estimates1' regs`c'
+
+			local c = `c'+1
+		}
+	}
+	
+	
+
+*Keep coefficients
+local coefs _cons dism1990 lenper /*Run this code with the table */
+
+*-------------------------------------------------------------------------------
+*Tex table
+*Tile of table
+local title_tab "The Effects of 1990 Segregation on 1990 City Demand (IV)"
+local titles " & \multicolumn{2}{c}{\makecell{Outcome: Percent of \\ residents who \\ are in-migrants}} & \multicolumn{2}{c}{Outcome: Median rent} & \multicolumn{2}{c}{\makecell{Outcome: Median rent \\ as a percent of income}} & \multicolumn{2}{c}{\makecell{Outcome: Share of \\ households with more \\ than one person per room}} \\"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
+
+esttab `estimates1'  using "table4_IV.tex", 					     ///
+replace b(3) lines se bookt nodepvars 							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) keep(dism1990) ///
+coeflabels(dism1990 "Dissimilarity Index" ) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
+nonumbers posthead( " `titles'  `numbers' ")                       ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lcccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])
+		
+
+esttab `estimates1'  using "table4_IV.tex", 					     ///
+append b(3) plain se bookt nodepvars nonumbers					 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) drop(`coefs')                          ///
+stats(med r2, fmt(3 3 0 0) ///
+labels("Mean Dep. Variable" "R Squared")) ///
+collabels(none) nomtitles posthead(\midrule) ///
+postfoot(\bottomrule[0.5pt]  									 ///
+         \label{tab:table2} 								 ///
+         \end{tabular} 											 ///
+		 \vspace{-13pt} 										 ///
+         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
+         \small 												 ///
+         \item Notes: Robust standard errors in   parentheses. Controls for total track lenght per square kilometer.   ///
+         \end{tablenotes} 										 ///
+         \end{threeparttable} 									 /// 
+         } 														 ///
+         \end{table})
+
 
 /*The eight following regressions are falsification tests of the relationship between RDI (herf) and city demand in cities far from the South (closeness<-400). These estimations are done to prove that the instrument has no direct effect on city demand. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity. */
 
