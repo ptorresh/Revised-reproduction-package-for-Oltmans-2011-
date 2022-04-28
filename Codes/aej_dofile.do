@@ -793,7 +793,7 @@ reg collgrad dism1980 agedum* if black==1, cluster(name) /*OLS regression to ide
 
 
 
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 4. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 5. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
 
 *Define table content 
 cd "$tables"
@@ -888,7 +888,7 @@ ivreg collgrad (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV r
 
 
 
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 4. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 5. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
 
 *Define table content 
 cd "$tables"
@@ -981,6 +981,90 @@ reg collgrad herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*F
 
 
 
+
+
+
+/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the falsifications regressions from table 5. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+
+*Define table content 
+cd "$tables"
+
+*Number of table
+local tab `i'
+di "`tab'"
+
+estimates clear
+local c = 1
+	
+foreach var of varlist hsdrop hsgrad somecoll collgrad {	
+
+
+		forvalues i=0/1 {	
+
+			eststo regs`c': reg `var' herf lenper agedum* if black==`i' & closeness<-400, cluster(name)
+
+			
+qui sum `e(depvar)' if e(sample) 
+local medi `r(mean)'
+
+estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
+qui unique name if e(sample) // Contamos cuantas observaciones hay.
+estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+
+local estimates`c' `estimates1' regs`c'
+
+			local c = `c'+1
+		}
+	}
+	
+	
+
+*Keep coefficients
+local coefs _cons herf lenper agedum* /*Run this code with the table */
+
+*-------------------------------------------------------------------------------
+*Tex table
+*Tile of table
+local title_tab "The Effects of 1980 Dissimilarity on Human Capital of 22- To 30-Year-Olds in 1980 (Falsification)"
+local titles " & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school dropouts }} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school graduates \\}} & \multicolumn{2}{c}{\makecell{Outcome: Share who \\ have some college}} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ college graduates }} \\"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
+
+esttab `estimates1'  using "table5_falsification.tex", 					     ///
+replace b(3) lines se bookt nodepvars 							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) keep(herf) ///
+coeflabels(herf "RDI" ) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
+nonumbers posthead( " `titles'  `numbers' ")                       ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lcccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])
+		
+
+esttab `estimates1'  using "table5_falsification.tex", 					     ///
+append b(3) plain se bookt nodepvars nonumbers					 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) drop(`coefs')                          ///
+stats(med r2, fmt(3 3 0 0) ///
+labels("Mean Dep. Variable" "R Squared")) ///
+collabels(none) nomtitles posthead(\midrule) ///
+postfoot(\bottomrule[0.5pt]  									 ///
+         \label{tab:table2} 								 ///
+         \end{tabular} 											 ///
+		 \vspace{-13pt} 										 ///
+         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
+         \small 												 ///
+         \item Notes: Robust standard errors clustered at the city level  in  parentheses. Controls for age dummies and total track length per square kilometer.  ///
+         \end{tablenotes} 										 ///
+         \end{threeparttable} 									 /// 
+         } 														 ///
+         \end{table})
+		 
+		 
 
 **** table A1 ****
 
