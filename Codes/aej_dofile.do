@@ -241,13 +241,13 @@ local estimates`c' `estimates1' regs`c'
 	
 
 *Keep coefficients
-local coefs _cons dism1990 /*Run this code with the table */
+local coefs _cons dism1990 lenper /*Run this code with the table */
 
 *-------------------------------------------------------------------------------
 *Tex table
 *Tile of table
 local title_tab "The Effects of Segregation on Poverty and Inequality Amoung Blacks and Whites (IV)"
-local titles "& \multicolumn{4}{c}{Main results: 2SLS RDI as instrument for 1990 dissimilarity} \\ \cmidrule{2-5} & \multicolumn{2}{c}{Gini Index} & \multicolumn{2}{c}{Poverty rate} \\"
+local titles "& \multicolumn{4}{c}{\makecell{Main results: 2SLS RDI as instrument for \\ 1990 dissimilarity}} \\ \cmidrule{2-5} & \multicolumn{2}{c}{Gini Index} & \multicolumn{2}{c}{Poverty rate} \\"
 local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} & Whites & Blacks & Whites & Blacks  \\ \midrule"
 
 esttab `estimates1'  using "table2_IV.tex", 					     ///
@@ -292,6 +292,85 @@ reg lngini_b herf lenper if closeness<-400, robust /*OLS regression to test for 
 reg povrate_w herf lenper if closeness<-400, robust /*OLS regression to test for the possibility that RDI is directly affecting the poverty rate within the white population (povrate_w) in cities far from the South. */
 reg povrate_b herf lenper if closeness<-400, robust  /*OLS regression to test for the possibility that RDI is directly affecting the poverty rate within the black population (povrate_b) in cities far from the South. */
 
+/*The following code exports the previos four regressions into a .tex table. Basically, it exports the falsification regressions from table 2, panel 1. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+
+*Define table content 
+cd "$tables"
+
+*Number of table
+local tab `i'
+di "`tab'"
+
+estimates clear
+local c = 1
+	
+foreach var of varlist lngini_w lngini_b povrate_w  povrate_b {	
+
+
+		foreach con in herf {	
+
+			eststo regs`c': reg `var' `con' lenper if closeness<-400, r
+
+			
+qui sum `e(depvar)' if e(sample) 
+local medi `r(mean)'
+
+estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
+qui unique name if e(sample) // Contamos cuantas observaciones hay.
+estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+
+local estimates`c' `estimates1' regs`c'
+
+			local c = `c'+1
+		}
+	}
+	
+	
+
+*Keep coefficients
+local coefs _cons herf lenper/*Run this code with the table */
+
+*-------------------------------------------------------------------------------
+*Tex table
+*Tile of table
+local title_tab "The Effects of Segregation on Poverty and Inequality Amoung Blacks and Whites (Falsification)"
+local titles "& \multicolumn{4}{c}{\makecell{Falsification: Reduced form effect of RDI \\ among cities far from the south }} & \\ \cmidrule{2-5} & \multicolumn{2}{c}{Gini Index} & \multicolumn{2}{c}{Poverty rate} \\"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} & Whites & Blacks & Whites & Blacks  \\ \midrule"
+
+esttab `estimates1'  using "table2_falsification.tex", 					     ///
+replace b(3) lines se bookt nodepvars 							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) keep(herf) ///
+coeflabels(herf "RDI" ) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
+nonumbers posthead( " `titles'  `numbers' ")                       ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])
+		
+
+esttab `estimates1'  using "table2_falsification.tex", 					     ///
+append b(3) plain se bookt nodepvars nonumbers					 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+eqlabels(none) drop(`coefs')                          ///
+stats(med r2, fmt(3 3 0 0) ///
+labels("Mean Dep. Variable" "R Squared")) ///
+collabels(none) nomtitles posthead(\midrule) ///
+postfoot(\bottomrule[0.5pt]  									 ///
+         \label{tab:table2} 								 ///
+         \end{tabular} 											 ///
+		 \vspace{-13pt} 										 ///
+         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
+         \small 												 ///
+         \item Notes: Gini Index are logged. Controls for total track lenght. Robust standard errors in   parentheses.   ///
+         \end{tablenotes} 										 ///
+         \end{threeparttable} 									 /// 
+         } 														 ///
+         \end{table})
 
 
 ****table 2, panel 2****
