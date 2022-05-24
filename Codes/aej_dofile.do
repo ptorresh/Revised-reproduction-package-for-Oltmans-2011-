@@ -22,6 +22,9 @@ global modified "$data/Modified"
 global results "$user/Results"
 global tables "$results/Tables"
 
+* Results - tables
+global graphs "$results/Graphs"
+
 
 use "$raw/aej_maindata.dta", clear /* Load the data provided by the author.*/
 
@@ -94,6 +97,8 @@ reg area1910 herf lenper, robust /*OLS regression to analyze how the instrument 
 foreach var in area1910 count1910 passpc {
 	gen `var'_1000 = `var'/1000
 }
+
+save "$modified/aej_maindata_modified.dta", replace
 
 reg count1910 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the population in 1910 (count1910). Note: results from this regression are not the ones presented by the author here the variable is not per 1000. Thus, variables need to be changed */
 reg ethseg10 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the ethnic dissimilarity index in 1910 (ethseg10)*/
@@ -1687,7 +1692,14 @@ postfoot(\bottomrule[0.5pt]  									 ///
          } 														 ///
          \end{table})
 		 
-		 
+
+**** Figure 3 ****
+/*The following code was not provided by the author. This code is therefore an addition to the reproduction package o replicate figure 3 from the paper*/
+
+twoway (scatter dism1990 herf) (lfit dism1990 herf), ytitle("1990 segregation", size(medium) margin(medsmall)) xtitle(RDI) graphregion(fcolor(white) lcolor(none) ifcolor(white) ilcolor(none)) legend(off) plotregion(fcolor(white) lcolor(none) ifcolor(white) ilcolor(none))
+	graph save "$graphs/Figure3.gph", replace
+	graph export "$graphs/Figure3.png", replace
+		
 
 **** table A1 ****
 
