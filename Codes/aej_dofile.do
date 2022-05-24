@@ -874,7 +874,7 @@ ivreg povrate_b (dism1990=herf) lenper ctymanuf_wkrs1920, robust /*Same specific
 
 
 ivreg lngini_w (dism1990=herf) lenper lfp1920, robust /*Same specification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the white population (lngini_w) in table 2, but controlling for the labor force participation in 1920 (lfp1920). */
-ivreg lngini_b (dism1990=herf) lenper lfp1920, /*Same specification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, robust but controlling for the labor force participation in 1920 (lfp1920). */
+ivreg lngini_b (dism1990=herf) lenper lfp1920, robust /*Same specification as the IV regression to estimate the causal effect of segregation (dism1990) on the natural logarithm of the Gini index for the black population (lngini_b) in table 2, robust but controlling for the labor force participation in 1920 (lfp1920). */
 ivreg povrate_w (dism1990=herf) lenper lfp1920, robust /*Same specification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for the labor force participation in 1920 (lfp1920). */
 ivreg povrate_b (dism1990=herf) lenper lfp1920, robust /*Same specification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for the labor force participation in 1920 (lfp1920). */
 
@@ -885,6 +885,224 @@ ivreg lngini_b (dism1990=herf) lenper herfscore, robust /*Same specification as 
 ivreg povrate_w (dism1990=herf) lenper herfscore, robust /*Same specification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the white population (povrate_w) in table 2, but controlling for a propensity score for the probability of having an above-median RDI (herfscore). */
 ivreg povrate_b (dism1990=herf) lenper herfscore, robust /*Same specification as the IV regression to estimate the causal effect of segregation (dism1990) on the poverty rate for the black population (povrate_b) in table 2, but controlling for a propensity score for the probability of having an above-median RDI (herfscore). */
 
+/*The following code replicates table 3*/
+
+
+/*With controls for 1990 city characteristics*/
+
+/*1990 Population controls*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper pop1990, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper pop1990, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper pop1990, robust 
+eststo: ivreg povrate_b (dism1990=herf) lenper pop1990, robust
+local coefs _cons dism1990 lenper pop1990
+local title_tab "Robustness Checks: 2SLS Effects of 1990 Segregation, Controlling for City-Level Characteristics"
+local titles "& \multicolumn{2}{c}{Outcome: Gini Index} & \multicolumn{2}{c}{Outcome: Poverty rate} \\"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} & \makecell{Whites \\ (1)} & \makecell{Blacks \\ (2)} & \makecell{Whites \\ (3)} & \makecell{Blacks \\ (4)}  \\ \midrule"
+local panel " \multicolumn{@M}{l}{\emph{With controls for 1990 city characteristics}} & \\"
+local panel2 " \multicolumn{@M}{l}{\emph{With controls for 1920 city characteristics}} & \\"
+
+esttab  using "table3.tex", 					     ///
+replace cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) lines bookt nodepvars noobs 							 ///
+ fragment                     ///
+eqlabels(none) keep(dism1990) ///
+coeflabels(dism1990 "Population") ///
+collabels(none) nomtitles substitute(\_ _) ///
+nonumbers                      ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])         ///
+posthead("\smallskip \\" " `titles'"  "`numbers' "  "`panel'" "\smallskip \\")  ///
+postfoot("\smallskip \\"									 ///
+         \label{tab:table3} 								 ///
+)
+
+
+
+/*Percentage of black population controls*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper pctbk1990, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper pctbk1990, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper pctbk1990, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper pctbk1990, robust
+local coefs _cons dism1990 lenper pctbk1990
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Percent black") ///
+postfoot( "\smallskip \\") ///
+
+/*Education controls*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper hsdrop_w- collgrad_b, robust 
+eststo: ivreg lngini_b (dism1990=herf) lenper hsdrop_w- collgrad_b, robust 
+eststo: ivreg povrate_w (dism1990=herf) lenper hsdrop_w- collgrad_b, robust 
+eststo: ivreg povrate_b (dism1990=herf) lenper hsdrop_w- collgrad_b, robust
+local coefs _cons dism1990 lenper hsdrop_w- collgrad_b
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Education") ///
+postfoot( "\smallskip \\") ///
+
+/*Share employed in manufacturing control*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper manshr, robust 
+eststo: ivreg lngini_b (dism1990=herf) lenper manshr, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper manshr, robust 
+eststo: ivreg povrate_b (dism1990=herf) lenper manshr, robust
+local coefs _cons dism1990 lenper manshr
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Share employed in manufacturing") ///
+postfoot( "\smallskip \\") ///
+
+/*Controls for labor force participation*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper lfp_w lfp_b, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper lfp_w lfp_b, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper lfp_w lfp_b, robust 
+eststo: ivreg povrate_b (dism1990=herf) lenper lfp_w lfp_b, robust
+local coefs _cons dism1990 lenper lfp_w lfp_b
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Labor force participation") ///
+postfoot( "\smallskip \\") ///
+
+/*Controls for number of local governments (N = 69) */
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper ngov, robust 
+eststo: ivreg lngini_b (dism1990=herf) lenper ngov, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper ngov, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper ngov, robust
+local coefs _cons dism1990 lenper ngov
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Number of local governments (N = 69)") ///
+postfoot("\smallskip \\") ///
+
+/*With controls for 1920 city characteristics*/
+
+/*Population */
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper count1920, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper count1920, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper count1920, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper count1920, robust
+local coefs _cons dism1990 lenper count1920
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Population") ///
+posthead("\smallskip \\"  "`panel2'" "\smallskip \\")  ///
+postfoot("\smallskip \\") ///
+
+/*Controls for percent of black population */
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper black1920, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper black1920, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper black1920, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper black1920, robust
+local coefs _cons dism1990 lenper black1920
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Percent black") ///
+postfoot("\smallskip \\") ///
+
+/*Controls for literacy*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper ctyliterate1920, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper ctyliterate1920, robust 
+eststo: ivreg povrate_w (dism1990=herf) lenper ctyliterate1920, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper ctyliterate1920, robust
+local coefs _cons dism1990 lenper ctyliterate1920
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Literacy") ///
+postfoot("\smallskip \\") ///
+
+/*Controls for share employed in manufacturing */
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper ctymanuf_wkrs1920, robust 
+eststo: ivreg lngini_b (dism1990=herf) lenper ctymanuf_wkrs1920, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper ctymanuf_wkrs1920, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper ctymanuf_wkrs1920, robust
+local coefs _cons dism1990 lenper ctymanuf_wkrs1920
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Share employed in manufacturing") ///
+postfoot("\smallskip \\") ///
+
+/*Controls for labor force participation*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper lfp1920, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper lfp1920, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper lfp1920, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper lfp1920, robust
+local coefs _cons dism1990 lenper lfp1920
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Labor force participation") ///
+postfoot("\smallskip \\") ///
+
+/*Controls for propensity score*/
+eststo clear
+eststo: ivreg lngini_w (dism1990=herf) lenper herfscore, robust
+eststo: ivreg lngini_b (dism1990=herf) lenper herfscore, robust
+eststo: ivreg povrate_w (dism1990=herf) lenper herfscore, robust
+eststo: ivreg povrate_b (dism1990=herf) lenper herfscore, robust 
+local coefs _cons dism1990 lenper hsdrop_w- collgrad_b
+esttab  using "table3.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nolines nonotes							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) keep(dism1990) ///
+collabels(none) nomtitles substitute(\_ _) ///
+coeflabels(dism1990 "Control for propensity score") ///
+posthead("\smallskip \\" )  ///
+postfoot(\bottomrule[0.5pt]  									 ///
+         \end{tabular} 											 ///
+		 \vspace{-2pt} 										 ///
+         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
+         \small 	                                              ///
+		 \item Notes: \textit{N = 121} except where noted. All estimates control for total track length. Gini indexes are logged. Robust standard errors in parentheses. 1990 education controls include percent of blacks and of whites who have less than a high school diploma, exactly a high school diploma, some college, and college diploma. Propensity score to have an above-median RDI generated based on: 1920 population, 1920 percent black, 1920 share of employment in manufacturing, 1920 literacy, 1920 labor force participation, and distance from the South. ///
+         \end{tablenotes} 										 ///
+         \end{threeparttable} 									 /// 
+         } 														 ///
+         \end{table})
+
+		 
 
 ****table 4****
 /*The eight following regressions are OLS estimates of the effect of segregation (dism1990) on 1990 city demand variables. These regressions will produce biased results since they don't take into account that segregation is endogenous. Therefore, estimates from these regressions will underestimate the effect of segregation on 1990 city demand. The standard errors are robust to heteroskedasticity. */
