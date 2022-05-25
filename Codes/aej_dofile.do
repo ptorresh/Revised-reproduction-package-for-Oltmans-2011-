@@ -1695,6 +1695,7 @@ postfoot(\bottomrule[0.5pt]  									 ///
 
 **** Figure 3 ****
 /*The following code was not provided by the author. This code is therefore an addition to the reproduction package o replicate figure 3 from the paper*/
+/*The following code was not provided by the author. This code is therefore an addition to the reproduction package to replicate figure 3 from the paper*/
 
 twoway (scatter dism1990 herf) (lfit dism1990 herf), ytitle("1990 segregation", size(medium) margin(medsmall)) xtitle(RDI) graphregion(fcolor(white) lcolor(none) ifcolor(white) ilcolor(none)) legend(off) plotregion(fcolor(white) lcolor(none) ifcolor(white) ilcolor(none))
 	graph save "$graphs/Figure3.gph", replace
@@ -1708,5 +1709,35 @@ use "$raw/table_A1.dta", clear /*Load dataset that has the information for table
 des /*Include code to describe the data*/
 
 for var pop1890-central: ttest X, by(sample) /*This code is to perform ttest for each variable in the dataset between in an out of sample. It is not clear which value of the variable "sample" represents the in sample and which value represents the out sample. */
+
+/*The following code was not included by the author in the replication package. Therefore, I include it to export the results in table A (appendix) of the paper. However, since the variables in the dataset do not have labels, I was only able to identify 27 out of the 44 variables presented in the original table. */
+global variables isol1890 isol1940t isol1940w isol1970 isol1990 dism1890 dism1940t dism1940w dism1970 dism1990 pctbk1890 pctbk1940 pctbk1970 pctbk1990 pop1890 pop1940 pop1970 pop1990 ward1890 ward1900 tract1940 tract1970 tract1990 area1900 area1940 area1970 area1990
+	
+foreach var of global variables{
+    ttest `var', by(sample)
+}
+	mat balance=J(27,9,.)
+	
+	tokenize ${variables}
+	forvalues j=1(1)27{
+        //Muestra completa
+		ttest ``j'', by(sample) //ttest entre tratamiento y control
+		matrix balance [`j',1]=r(mu_1) // Not in sample
+		matrix balance [`j',2]=r(sd_1)/(sqrt(r(N_1)))
+		matrix balance [`j',3]=r(mu_2) // In sample
+		matrix balance [`j',4]=r(sd_2)/(sqrt(r(N_2)))
+		matrix balance[`j',5]=r(mu_1)-r(mu_2)
+		matrix balance[`j',6]=r(p) 
+	
+
+	}
+
+	matlist balance
+	
+	frmttable using "$tables/TableA.tex", tex statmat(balance) coljust(l)		/// 
+		ctitles("\makecell{Cutler-Glaeser-Vigor \\ variable}", "\makecell{Not in \\ sample}", "\makecell{(Standard \\ error)}", "In sample", "\makecell{(Standard \\ error)}", "\makecell{Difference \\ in means}", "\textit{p}-value")															///
+		rtitles("Isolation index-1890"\ "Isolation index-1940 tract" \"Isolation index-1940 ward"\ "Isolation index-1970" \"Isolation index-1990"\"Dissimilarity index-1890"\ "Dissimilarity index-1940 tract" \ "Dissimilarity index-1940 ward"\"Dissimilarity index-1970"\ "Dissimilarity index-1990" \"Percent black-1890"\ "Percent black-1940" \ "Percent black-1970" \"Percent black-1990"\"Population-1890"\ "Population-1940" \ "Population-1970" \"Population-1990"\"Number of wards-1890"\ "Number of wards-1940" \ "Number of tracts-1940" \"Number of tracts-1970"\"Number of tracts-1990"\"Total area-1900"\"Total area-1940"\"Total area-1970"\"Total area-1990" ) ///
+		basefont(fs11) sdec(3) store("balance") ///
+		replace
 
 /*Note: there is no code to replicate the graphs*/
