@@ -106,84 +106,6 @@ reg ethiso10 herf lenper, robust /*OLS regression to analyze how the instrument 
 reg black1910 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the percentage of black population in 1910 (black1910)*/
 reg passpc herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the stret-cars per cap in 1910 (passpc). Note: results from this regression are not the ones presented by the author here the variable is not per 1000. Thus, variables need to be changed*/
 
-
-*Define table content for first panel in table 1
-cd "$tables"
-
-*Number of table
-local tab `i'
-di "`tab'"
-
-estimates clear
-local c = 1
-	
-foreach var of varlist dism1990 area1910_1000 count1910_1000 ethseg10 ethiso10 black1910 passpc_1000 {	
-	
-
-			eststo regs`c': reg `var' herf lenper, r
-
-			
-qui sum `e(depvar)' if e(sample) 
-local medi `r(mean)'
-
-estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
-qui unique name if e(sample) // Contamos cuantas observaciones hay.
-estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
-
-local estimates`c' `estimates1' regs`c'
-
-			local c = `c'+1
-		}
-	
-	
-	
-	
-
-*Keep coefficients
-local coefs _cons herf lenper /*Run this code with the table */
-
-*-------------------------------------------------------------------------------
-*Tex table
-*Tile of table
-local title_tab "Testing RDI as an Instrument"
-local titles "& \multicolumn{1}{c}{First Stage} & \multicolumn{6}{c}{Falsification checks} \\ \cmidrule{2-2} \cmidrule{3-8} & \multicolumn{6}{c}{1910 city characteristics} \\"
-local numbers " \cmidrule(lr){3-7}  & \makecell{1990 \\ dissimilarity \\ index \\ (1)} & \makecell{Physical \\ area \\ (square \\ miles/ \\ 1,000) \\ (2)} & \makecell{Pob. \\ (1,000s) \\ (3)} & \makecell{Ethnic \\ dissimilarity \\ index \\ (4)} & \makecell{Ethnic \\ isolation \\ index \\ (5)} & \makecell{Percent \\ black \\ (6)} & \makecell{Street-cars \\ per cap. \\ (1,000) \\ (1915) \\ (7)}  \\ \midrule"
-
-esttab `estimates1'  using "table1.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) keep(herf lenper) ///
-coeflabels(herf "RDI" lenper "\makecell{Track lenght per \\ square kilometer}") ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
-nonumbers noobs posthead( " `titles'  `numbers' ")                       ///
-prehead(\begin{table}[H]										 ///
-		\centering 												 ///
-		\scalebox{0.8}{ 											 ///
-		\begin{threeparttable} 									 ///
-	 \caption{`title_tab'} ///
-		\begin{tabular}{lccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
-		
-
-esttab `estimates1'  using "table1.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) drop(`coefs')                          ///
-stats(med part, fmt(3 0) ///
-labels("\makecell{Mean of dependent \\ Variable}" "\textit{N}" )) ///
-collabels(none) nomtitles posthead(\midrule) ///
-postfoot(\bottomrule[0.5pt]  									 ///
-         \label{tab:table2} 								 ///
-         \end{tabular} 											 ///
-		 \vspace{-13pt} 										 ///
-         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
-         \small 												 ///
-         \item Notes: Robust standard errors in parentheses  ///
-         \end{tablenotes} 										 ///
-         \end{threeparttable} 									 /// 
-         } 														 ///
-         \end{table})
-
 		 
 /*The following 6 regressions are falsification checks that test for the possibility that there existed initial selection to the cities by examining the human capital characteristics of cities in 1920 (after the first wave of the Great Migration and before segregation could begin to have noticeable effects on human capital). These are done to proof that the independence assumption holds. */
 reg black1920 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the percentage of black population in 1920 (black1920)*/
@@ -197,12 +119,66 @@ reg ctyrail_wkrs1920 herf lenper, robust /*OLS regression to analyze how the ins
 reg incseg herf lenper, robust /*The purpose of this regresion is to show that during the year of analysis (1990) the instrument (herf) does not predict income segregation (incseg) and thus the instrument only affects the dependent variables through segregation and not through some other mechanism (like income segregation).*/
 
 
-*Define table content for second panel in table 1
-cd "$tables"
+/*The following codes creates and exports results from table 1 to .tex format. I include this code to improve the replication package.*/
 
-*Number of table
-local tab `i'
-di "`tab'"
+cd "$tables"
+estimates clear
+local c = 1
+	
+foreach var of varlist dism1990 area1910_1000 count1910_1000 ethseg10 ethiso10 black1910 passpc_1000 {	
+	
+
+			eststo regs`c': reg `var' herf lenper, r
+
+			
+qui sum `e(depvar)' if e(sample) 
+local medi `r(mean)'
+
+estadd scalar med=`medi' : regs`c' 
+qui unique name if e(sample) 
+estadd scalar part = `r(unique)': regs`c' 
+
+local estimates`c' `estimates1' regs`c'
+
+			local c = `c'+1
+		}
+
+local coefs _cons herf lenper 
+
+
+local title_tab "Testing RDI as an Instrument"
+local titles "& \multicolumn{1}{c}{First Stage} & \multicolumn{6}{c}{Falsification checks} \\ \cmidrule{2-2} \cmidrule{3-8} & \multicolumn{6}{c}{1910 city characteristics} \\"
+local numbers " \cmidrule(lr){3-7}  & \makecell{1990 \\ dissimilarity \\ index \\ (1)} & \makecell{Physical \\ area \\ (square \\ miles/ \\ 1,000) \\ (2)} & \makecell{Pob. \\ (1,000s) \\ (3)} & \makecell{Ethnic \\ dissimilarity \\ index \\ (4)} & \makecell{Ethnic \\ isolation \\ index \\ (5)} & \makecell{Percent \\ black \\ (6)} & \makecell{Street-cars \\ per cap. \\ (1,000) \\ (1915) \\ (7)}  \\ \midrule"
+
+esttab `estimatesc' using "table1.tex", 					     ///
+replace cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) nolines bookt nodepvars noobs 							 ///
+ fragment                     ///
+eqlabels(none) keep(herf lenper) ///
+coeflabels(herf "RDI" lenper "\makecell{Track lenght per \\ square kilometer}") ///
+collabels(none) nomtitles substitute(\_ _) ///
+nonumbers nolines                     ///
+prehead(\begin{table}[H]										 ///
+		\centering 												 ///
+		\scalebox{0.8}{ 											 ///
+		\begin{threeparttable} 									 ///
+	 \caption{`title_tab'} ///
+		\begin{tabular}{lccccccc} 								 ///
+		\toprule[0.5pt] \toprule[0.5pt])         ///
+posthead("\smallskip \\" " `titles'"  "`numbers' " "\smallskip \\")  ///
+postfoot("\smallskip \\"									 ///								 ///
+)
+
+
+esttab using "table1.tex", 					     ///
+legend append cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) bookt nodepvars nonumbers noobs nonotes nolines							 ///
+star(* 0.10 ** 0.05 *** 0.01) fragment                     ///
+eqlabels(none) drop(`coefs')                          ///
+stats(med part, fmt(3 0) ///
+labels("\makecell{Mean of dependent \\ Variable}" "\textit{N}" )) ///
+collabels(none) nomtitles ///
+postfoot( "\smallskip \\") ///
+
+
 
 estimates clear
 local c = 1
@@ -216,56 +192,39 @@ foreach var of varlist black1920 ctyliterate1920 lfp1920 ctytrade_wkrs1920 ctyma
 qui sum `e(depvar)' if e(sample) 
 local medi `r(mean)'
 
-estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
-qui unique name if e(sample) // Contamos cuantas observaciones hay.
-estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+estadd scalar med=`medi' : regs`c' 
+qui unique name if e(sample) 
+estadd scalar part = `r(unique)': regs`c' 
 
 local estimates`c' `estimates1' regs`c'
 
 			local c = `c'+1
 		}
-	
-	
-	
-	
-
-*Keep coefficients
-local coefs _cons herf lenper /*Run this code with the table */
-
-*-------------------------------------------------------------------------------
-*Tex table
-*Tile of table
+		
 local title_tab "Testing RDI as an Instrument"
 local titles "& \multicolumn{6}{c}{Falsification checks} \\ \cmidrule{2-8} & \multicolumn{6}{c}{1920 city characteristics} \\"
 local numbers " \cmidrule(lr){2-7}  & \makecell{Percent \\ black \\  (8)} & \makecell{Percent \\ literate \\ (9)} & \makecell{Labor force \\ participation \\ (10)} & \makecell{Percent of \\ empl. in \\ trade \\ (11)} & \makecell{Percent of \\ empl. in \\ manufacturing \\ (12)} & \makecell{Percent of \\ empl. in \\ railroads \\ (13)} & \makecell{1990 \\ income \\ seg. \\ (14) }  \\ \midrule"
 
-esttab `estimates1'  using "table1_panel2.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
+esttab `estimatesc'  using "table1.tex", 					     ///
+append b(3) nolines se bookt nodepvars 							 ///
 star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
 eqlabels(none) keep(herf lenper) ///
 coeflabels(herf "RDI" lenper "\makecell{Track lenght per \\ square kilometer}") ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
+collabels(none) nomtitles title(\label(table1)) substitute(\_ _) ///
 nonumbers noobs posthead( " `titles'  `numbers' ")                       ///
-prehead(\begin{table}[H]										 ///
-		\centering 												 ///
-		\scalebox{0.8}{ 											 ///
-		\begin{threeparttable} 									 ///
-	 \caption{`title_tab'} ///
-		\begin{tabular}{lccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
+
 		
 
-esttab `estimates1'  using "table1_panel2.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
+esttab `estimatesc'  using "table1.tex", 					     ///
+append b(3) plain se bookt nodepvars nonumbers nolines				 ///
 star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
 eqlabels(none) drop(`coefs')                          ///
 stats(med part, fmt(3 0) ///
 labels("\makecell{Mean of dependent \\ Variable}" "\textit{N}" )) ///
-collabels(none) nomtitles posthead(\midrule) ///
+collabels(none) nomtitles ///
 postfoot(\bottomrule[0.5pt]  									 ///
-         \label{tab:table2} 								 ///
          \end{tabular} 											 ///
-		 \vspace{-13pt} 										 ///
+		 \vspace{-2pt} 										 ///
          \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
          \small 												 ///
          \item Notes: Robust standard errors in parentheses  ///
@@ -1122,10 +1081,31 @@ reg medgrentpinc_b dism1990, robust /*OLS regression to identify the effect of s
 reg mt1proom_w dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w). */
 reg mt1proom_b dism1990, robust /*OLS regression to identify the effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b). */
 
+/*The eight following regressions are IV estimates of the effect of segregation (dism1990) on 1990 city demand variables. The RDI (herf) is the instrumental variable that allows to capture the causal effect of segregation on 1990 city demand variables. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track.  The standard errors are robust to heteroskedasticity. */
 
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 4. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
+ivreg mv_st_winus_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on  the percent of residents who are white in-migrants (mv_st_winus_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg mv_st_winus_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on  the percent of residents who are black in-migrants (mv_st_winus_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrent_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent for whites (medgrent_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrent_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent for blacks (medgrent_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrentpinc_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent as a percent of income for whites (medgrentpinc_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg medgrentpinc_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent as a percent of income for blacks (medgrentpinc_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg mt1proom_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
+ivreg mt1proom_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
 
-*Define table content 
+
+
+/*The eight following regressions are falsification tests of the relationship between RDI (herf) and city demand in cities far from the South (closeness<-400). These estimations are done to prove that the instrument has no direct effect on city demand. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity. */
+
+reg mv_st_winus_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and the percent of residents who are white in-migrants (mv_st_winus_w). */
+reg mv_st_winus_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and  the percent of residents who are black in-migrants (mv_st_winus_b) */
+reg medgrent_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent for whites (medgrent_w) */ 
+reg medgrent_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent for blacks (medgrent_b) */ 
+reg medgrentpinc_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent as a percent of income for whites (medgrentpinc_w) */
+reg medgrentpinc_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent as a percent of income for blacks (medgrentpinc_b) */
+reg mt1proom_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of white households with more than one person per room (mt1proom_w) */
+reg mt1proom_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of black households with more than one person per room (mt1proom_b) */
+
+/*The following code replicates table 4 from the paper. I include this code to improve the reproduction package. */
 cd "$tables"
 
 *Number of table
@@ -1164,66 +1144,32 @@ local coefs _cons dism1990 /*Run this code with the table */
 *-------------------------------------------------------------------------------
 *Tex table
 *Tile of table
-local title_tab "The Effects of 1990 Segregation on 1990 City Demand (OLS)"
+local title_tab "The Effects of 1990 Segregation on 1990 City Demand"
 local titles " & \multicolumn{2}{c}{\makecell{Outcome: Percent of \\ residents who \\ are in-migrants}} & \multicolumn{2}{c}{Outcome: Median rent} & \multicolumn{2}{c}{\makecell{Outcome: Median rent \\ as a percent of income}} & \multicolumn{2}{c}{\makecell{Outcome: Share of \\ households with more \\ than one person per room}} \\"
-local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & \makecell{Whites \\ (1)} & \makecell{Blacks \\ (2)} & \makecell{Whites \\ (3)} & \makecell{Blacks \\ (4)} & \makecell{Whites \\ (5)} & \makecell{Blacks \\ (6)} & \makecell{Whites \\ (7)} & \makecell{Blacks \\ (8)}  \\ \midrule"
+local panel " \multicolumn{@M}{l}{\emph{OLS}} & \\"
+local panel2 " \multicolumn{@M}{l}{\emph{IV}} & \\"
+local panel3 " \multicolumn{@M}{l}{\emph{Falsification: Reduced form effect of RDI among cities far from the South}} & \\"
 
-esttab `estimates1'  using "table4_OLS.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+esttab `estimatesc'  using "table4.tex", 					     ///
+replace cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) nolines bookt nodepvars noobs 							 ///
+ fragment                     ///
 eqlabels(none) keep(dism1990) ///
 coeflabels(dism1990 "Dissimilarity Index" ) ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
-nonumbers posthead( " `titles'  `numbers' ")                       ///
+collabels(none) nomtitles substitute(\_ _) ///
+nonumbers nolines                     ///
 prehead(\begin{table}[H]										 ///
 		\centering 												 ///
 		\scalebox{0.8}{ 											 ///
 		\begin{threeparttable} 									 ///
 	 \caption{`title_tab'} ///
 		\begin{tabular}{lcccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
+		\toprule[0.5pt] \toprule[0.5pt])                 ///
+posthead("\smallskip \\" " `titles'"  "`numbers' " "`panel'" "\smallskip \\")  ///
+postfoot("\smallskip \\"									 ///								 ///
+) 
 		
-
-esttab `estimates1'  using "table4_OLS.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) drop(`coefs')                          ///
-stats(med r2, fmt(3 3 0 0) ///
-labels("Mean Dep. Variable" "R Squared")) ///
-collabels(none) nomtitles posthead(\midrule) ///
-postfoot(\bottomrule[0.5pt]  									 ///
-         \label{tab:table2} 								 ///
-         \end{tabular} 											 ///
-		 \vspace{-13pt} 										 ///
-         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
-         \small 												 ///
-         \item Notes: Robust standard errors in   parentheses.   ///
-         \end{tablenotes} 										 ///
-         \end{threeparttable} 									 /// 
-         } 														 ///
-         \end{table})
-
-/*The eight following regressions are IV estimates of the effect of segregation (dism1990) on 1990 city demand variables. The RDI (herf) is the instrumental variable that allows to capture the causal effect of segregation on 1990 city demand variables. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track.  The standard errors are robust to heteroskedasticity. */
-
-ivreg mv_st_winus_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on  the percent of residents who are white in-migrants (mv_st_winus_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-ivreg mv_st_winus_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on  the percent of residents who are black in-migrants (mv_st_winus_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-ivreg medgrent_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent for whites (medgrent_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-ivreg medgrent_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent for blacks (medgrent_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-ivreg medgrentpinc_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent as a percent of income for whites (medgrentpinc_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-ivreg medgrentpinc_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the median rent as a percent of income for blacks (medgrentpinc_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-ivreg mt1proom_w (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of white households with more than one person per room (mt1proom_w) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-ivreg mt1proom_b (dism1990=herf) lenper, robust /*IV regression to identify the causal effect of segregation (dism1990) on the share of black households with more than one person per room (mt1proom_b) using the Railroad Division Index (herf) as an instrumental variable for segregation (herf). */
-
-
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the 2SLS regressions from table 4. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
-
-*Define table content 
-cd "$tables"
-
-*Number of table
-local tab `i'
-di "`tab'"
-
+			
 estimates clear
 local c = 1
 	
@@ -1248,73 +1194,18 @@ local estimates`c' `estimates1' regs`c'
 		}
 	}
 	
-	
+local coefs _cons dism1990 lenper 
 
-*Keep coefficients
-local coefs _cons dism1990 lenper /*Run this code with the table */
-
-*-------------------------------------------------------------------------------
-*Tex table
-*Tile of table
-local title_tab "The Effects of 1990 Segregation on 1990 City Demand (IV)"
-local titles " & \multicolumn{2}{c}{\makecell{Outcome: Percent of \\ residents who \\ are in-migrants}} & \multicolumn{2}{c}{Outcome: Median rent} & \multicolumn{2}{c}{\makecell{Outcome: Median rent \\ as a percent of income}} & \multicolumn{2}{c}{\makecell{Outcome: Share of \\ households with more \\ than one person per room}} \\"
-local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
-
-esttab `estimates1'  using "table4_IV.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
+esttab `estimatesc'  using "table4.tex", 					     ///
+append b(3) nolines se bookt nodepvars nonumbers noobs 	     	 ///
 star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
 eqlabels(none) keep(dism1990) ///
 coeflabels(dism1990 "Dissimilarity Index" ) ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
-nonumbers posthead( " `titles'  `numbers' ")                       ///
-prehead(\begin{table}[H]										 ///
-		\centering 												 ///
-		\scalebox{0.8}{ 											 ///
-		\begin{threeparttable} 									 ///
-	 \caption{`title_tab'} ///
-		\begin{tabular}{lcccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
-		
-
-esttab `estimates1'  using "table4_IV.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) drop(`coefs')                          ///
-stats(med r2, fmt(3 3 0 0) ///
-labels("Mean Dep. Variable" "R Squared")) ///
-collabels(none) nomtitles posthead(\midrule) ///
-postfoot(\bottomrule[0.5pt]  									 ///
-         \label{tab:table2} 								 ///
-         \end{tabular} 											 ///
-		 \vspace{-13pt} 										 ///
-         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
-         \small 												 ///
-         \item Notes: Robust standard errors in   parentheses. Controls for total track lenght per square kilometer.   ///
-         \end{tablenotes} 										 ///
-         \end{threeparttable} 									 /// 
-         } 														 ///
-         \end{table})
+collabels(none) nomtitles title(\label(table4)) substitute(\_ _) ///
+posthead( "`panel2'" "\smallskip \\")  ///
+postfoot( "\smallskip \\") ///
 
 
-/*The eight following regressions are falsification tests of the relationship between RDI (herf) and city demand in cities far from the South (closeness<-400). These estimations are done to prove that the instrument has no direct effect on city demand. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. The standard errors are robust to heteroskedasticity. */
-
-reg mv_st_winus_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and the percent of residents who are white in-migrants (mv_st_winus_w). */
-reg mv_st_winus_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and  the percent of residents who are black in-migrants (mv_st_winus_b) */
-reg medgrent_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent for whites (medgrent_w) */ 
-reg medgrent_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent for blacks (medgrent_b) */ 
-reg medgrentpinc_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent as a percent of income for whites (medgrentpinc_w) */
-reg medgrentpinc_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and median rent as a percent of income for blacks (medgrentpinc_b) */
-reg mt1proom_w herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of white households with more than one person per room (mt1proom_w) */
-reg mt1proom_b herf lenper if closeness<-400, robust /*Falsification test of the relationship between Railroad Division Index (herf) and share of black households with more than one person per room (mt1proom_b) */
-
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the falsification tests from table 4. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
-
-*Define table content 
-cd "$tables"
-
-*Number of table
-local tab `i'
-di "`tab'"
 
 estimates clear
 local c = 1
@@ -1339,49 +1230,22 @@ local estimates`c' `estimates1' regs`c'
 			local c = `c'+1
 		}
 	}
-	
-	
-
-*Keep coefficients
 local coefs _cons herf lenper /*Run this code with the table */
 
-*-------------------------------------------------------------------------------
-*Tex table
-*Tile of table
-local title_tab "The Effects of 1990 Segregation on 1990 City Demand (Falsification)"
-local titles " & \multicolumn{2}{c}{\makecell{Outcome: Percent of \\ residents who \\ are in-migrants}} & \multicolumn{2}{c}{Outcome: Median rent} & \multicolumn{2}{c}{\makecell{Outcome: Median rent \\ as a percent of income}} & \multicolumn{2}{c}{\makecell{Outcome: Share of \\ households with more \\ than one person per room}} \\"
-local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
-
-esttab `estimates1'  using "table4_falsification.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
+esttab `estimatesc'  using "table4.tex", 					     ///
+append b(3) nolines se bookt nodepvars nonumbers noobs						 ///
 star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
 eqlabels(none) keep(herf) ///
 coeflabels(herf "RDI" ) ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
-nonumbers posthead( " `titles'  `numbers' ")                       ///
-prehead(\begin{table}[H]										 ///
-		\centering 												 ///
-		\scalebox{0.8}{ 											 ///
-		\begin{threeparttable} 									 ///
-	 \caption{`title_tab'} ///
-		\begin{tabular}{lcccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
-		
-
-esttab `estimates1'  using "table4_falsification.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) drop(`coefs')                          ///
-stats(med r2, fmt(3 3 0 0) ///
-labels("Mean Dep. Variable" "R Squared")) ///
-collabels(none) nomtitles posthead(\midrule) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///   
+posthead("\smallskip \\" "`panel3'" "\smallskip \\")  ///              
 postfoot(\bottomrule[0.5pt]  									 ///
          \label{tab:table2} 								 ///
          \end{tabular} 											 ///
 		 \vspace{-13pt} 										 ///
          \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
          \small 												 ///
-         \item Notes: Robust standard errors in   parentheses. Controls for total track lenght per square kilometer.   ///
+         \item Notes: Robust standard errors in parentheses. All 2SLS and reduced form regressions control for total track length per square kilometer. \textit{N} = 121 for top two panels; \textit{N} = 29 for falsification check on subset of cities at least 400 miles from the South.  ///
          \end{tablenotes} 										 ///
          \end{threeparttable} 									 /// 
          } 														 ///
@@ -1694,7 +1558,6 @@ postfoot(\bottomrule[0.5pt]  									 ///
 		 
 
 **** Figure 3 ****
-/*The following code was not provided by the author. This code is therefore an addition to the reproduction package o replicate figure 3 from the paper*/
 /*The following code was not provided by the author. This code is therefore an addition to the reproduction package to replicate figure 3 from the paper*/
 
 twoway (scatter dism1990 herf) (lfit dism1990 herf), ytitle("1990 segregation", size(medium) margin(medsmall)) xtitle(RDI) graphregion(fcolor(white) lcolor(none) ifcolor(white) ilcolor(none)) legend(off) plotregion(fcolor(white) lcolor(none) ifcolor(white) ilcolor(none))
@@ -1708,10 +1571,10 @@ use "$raw/table_A1.dta", clear /*Load dataset that has the information for table
 *all data from CGV, except indicator for "in my sample"
 des /*Include code to describe the data*/
 
-for var pop1890-central: ttest X, by(sample) /*This code is to perform ttest for each variable in the dataset between in an out of sample. It is not clear which value of the variable "sample" represents the in sample and which value represents the out sample. */
+for var pop1890-central: ttest X, by(sample) /*This code is to perform ttest for each variable in the dataset between in an out of sample. It is not clear which value of the variable "sample" represents the in sample and which value represents the out sample. Also, this code performs the ttest for all variables in the dataset (113), whereas the author presents only results for 44 variables in the appendix. */
 
 /*The following code was not included by the author in the replication package. Therefore, I include it to export the results in table A (appendix) of the paper. However, since the variables in the dataset do not have labels, I was only able to identify 27 out of the 44 variables presented in the original table. */
-global variables isol1890 isol1940t isol1940w isol1970 isol1990 dism1890 dism1940t dism1940w dism1970 dism1990 pctbk1890 pctbk1940 pctbk1970 pctbk1990 pop1890 pop1940 pop1970 pop1990 ward1890 ward1900 tract1940 tract1970 tract1990 area1900 area1940 area1970 area1990
+global variables isol1890 isol1940t isol1940w isol1970 isol1990 dism1890 dism1940t dism1940w dism1970 dism1990 pctbk1890 pctbk1940 pctbk1970 pctbk1990 pop1890 pop1940 pop1970 pop1990 ward1890 ward1940 tract1940 tract1970 tract1990 area1900 area1940 area1970 area1990
 	
 foreach var of global variables{
     ttest `var', by(sample)
