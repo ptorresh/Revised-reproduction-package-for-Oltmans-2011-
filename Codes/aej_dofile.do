@@ -1283,11 +1283,34 @@ reg somecoll dism1980 agedum* if black==1, cluster(name) /*OLS regression to ide
 reg collgrad dism1980 agedum* if black==0, cluster(name) /*OLS regression to identify the effect of 1980 segregation (dism1980) on the share of whites (black==0) who are college graduates (collgrad).*/
 reg collgrad dism1980 agedum* if black==1, cluster(name) /*OLS regression to identify the effect of 1980 segregation (dism1980) on the share of blacks (black==1) who are college graduates (collgrad).*/
 
+		 
+/*The 8 following regressions are IV estimates of the effect of 1980 segregation (dism1980) on human capital of 22 to 30 year olds in 1980. The RDI (herf) is the instrumental variable that allows to capture the causal effect of 1980 segregation on human capital. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. The standard errors are clustered at the city label (name) to correct for arbitrary nonindependence of observations within a city. Estimates also control for age levels (agedum* are dummies for group ages from 22 to 30)  */
+
+ivreg hsdrop (dism1980=herf) lenper agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who are high school dropouts (hsdrop). */
+ivreg hsdrop (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who are high school dropouts (hsdrop).*/
+ivreg hsgrad (dism1980=herf) lenper  agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who are high school graduates (hsgrad).*/
+ivreg hsgrad (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who are high school graduates (hsgrad).*/
+ivreg somecoll (dism1980=herf) lenper  agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who have some college (somecoll).*/
+ivreg somecoll (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who have some college (somecoll).*/
+ivreg collgrad (dism1980=herf) lenper  agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who are college graduates (collgrad).*/
+ivreg collgrad (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who are college graduates (collgrad).*/
 
 
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 5. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
 
-*Define table content 
+/*The eight following regressions are falsification tests of the relationship between RDI (herf) and human capital in cities far from the South (closeness<-400). These estimations are done to prove that the instrument (herf) has no direct effect on human capital. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. Estimates also control for age levels (agedum* are dummies for group ages from 22 to 30). The standard errors are clustered at the city label (name) to correct for arbitrary nonindependence of observations within a city. */
+
+reg hsdrop herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who are high school dropouts (hsdrop). */
+reg hsdrop herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and  the share of blacks (black==1) who are high school dropouts (hsdrop). */
+reg hsgrad herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who are high school graduates (hsgrad). */
+reg hsgrad herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of blacks (black==1) who are high school graduates (hsgrad). */
+reg somecoll herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who have some college (somecoll). */
+reg somecoll herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of blacks (black==1) who have some college (somecoll). */
+reg collgrad herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who are college graduates (collgrad). */
+reg collgrad herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of blacks (black==1) who are college graduates (collgrad).*/
+
+
+
+/*The following code replicates table 5 from the paper. I include this code to improve the reproduction package since the original one did not provide code to export tables. */
 cd "$tables"
 
 *Number of table
@@ -1308,9 +1331,9 @@ foreach var of varlist hsdrop hsgrad somecoll collgrad {
 qui sum `e(depvar)' if e(sample) 
 local medi `r(mean)'
 
-estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
-qui unique name if e(sample) // Contamos cuantas observaciones hay.
-estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+estadd scalar med=`medi' : regs`c' 
+qui unique name if e(sample) 
+estadd scalar part = `r(unique)': regs`c' 
 
 local estimates`c' `estimates1' regs`c'
 
@@ -1328,66 +1351,30 @@ local coefs _cons dism1980 agedum* /*Run this code with the table */
 *Tile of table
 local title_tab "The Effects of 1980 Dissimilarity on Human Capital of 22- To 30-Year-Olds in 1980 (OLS)"
 local titles " & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school dropouts }} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school graduates \\}} & \multicolumn{2}{c}{\makecell{Outcome: Share who \\ have some college}} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ college graduates }} \\"
-local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
+local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & \makecell{Whites \\ (1)} & \makecell{Blacks \\ (2)} & \makecell{Whites \\ (3)} & \makecell{Blacks \\ (4)} & \makecell{Whites \\ (5)} & \makecell{Blacks \\ (6)} & \makecell{Whites \\ (7)} & \makecell{Blacks \\ (8)}  \\ \midrule"
+local panel " \multicolumn{@M}{l}{\emph{OLS}} & \\"
+local panel2 " \multicolumn{@M}{l}{\emph{IV}} & \\"
+local panel3 " \multicolumn{@M}{l}{\emph{Falsification: Reduced form effect of RDI among cities far from the South}} & \\"
 
-esttab `estimates1'  using "table5_OLS.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
+esttab `estimatesc'  using "table5.tex", 					     ///
+replace cells(b(star fmt(3) vacant({--})) se( par(( ))fmt(3))) nolines bookt nodepvars noobs 							 ///
+ fragment                     ///
 eqlabels(none) keep(dism1980) ///
 coeflabels(dism1980 "Dissimilarity Index" ) ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
-nonumbers posthead( " `titles'  `numbers' ")                       ///
+collabels(none) nomtitles substitute(\_ _) ///
+nonumbers nolines                     ///
 prehead(\begin{table}[H]										 ///
 		\centering 												 ///
 		\scalebox{0.8}{ 											 ///
 		\begin{threeparttable} 									 ///
 	 \caption{`title_tab'} ///
 		\begin{tabular}{lcccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
+		\toprule[0.5pt] \toprule[0.5pt])                 ///
+posthead("\smallskip \\" " `titles'"  "`numbers' " "`panel'" "\smallskip \\")  ///
+postfoot("\smallskip \\"									 ///								 ///
+) 
 		
-
-esttab `estimates1'  using "table5_OLS.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) drop(`coefs')                          ///
-stats(med r2, fmt(3 3 0 0) ///
-labels("Mean Dep. Variable" "R Squared")) ///
-collabels(none) nomtitles posthead(\midrule) ///
-postfoot(\bottomrule[0.5pt]  									 ///
-         \label{tab:table2} 								 ///
-         \end{tabular} 											 ///
-		 \vspace{-13pt} 										 ///
-         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
-         \small 												 ///
-         \item Notes: Robust standard errors clustered at the city level  in  parentheses. Controls for age dummies  ///
-         \end{tablenotes} 										 ///
-         \end{threeparttable} 									 /// 
-         } 														 ///
-         \end{table})
-		 
-
-/*The 8 following regressions are IV estimates of the effect of 1980 segregation (dism1980) on human capital of 22 to 30 year olds in 1980. The RDI (herf) is the instrumental variable that allows to capture the causal effect of 1980 segregation on human capital. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. The standard errors are clustered at the city label (name) to correct for arbitrary nonindependence of observations within a city. Estimates also control for age levels (agedum* are dummies for group ages from 22 to 30)  */
-
-ivreg hsdrop (dism1980=herf) lenper agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who are high school dropouts (hsdrop). */
-ivreg hsdrop (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who are high school dropouts (hsdrop).*/
-ivreg hsgrad (dism1980=herf) lenper  agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who are high school graduates (hsgrad).*/
-ivreg hsgrad (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who are high school graduates (hsgrad).*/
-ivreg somecoll (dism1980=herf) lenper  agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who have some college (somecoll).*/
-ivreg somecoll (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who have some college (somecoll).*/
-ivreg collgrad (dism1980=herf) lenper  agedum* if black==0, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of whites (black==0) who are college graduates (collgrad).*/
-ivreg collgrad (dism1980=herf) lenper  agedum* if black==1, cluster(name) /*IV regression to identify the causal effect of 1980 segregation (dism1980) on the share of blacks (black==1) who are college graduates (collgrad).*/
-
-
-
-
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the OLS regressions from table 5. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
-
-*Define table content 
-cd "$tables"
-
-*Number of table
-local tab `i'
-di "`tab'"
+			
 
 estimates clear
 local c = 1
@@ -1403,9 +1390,9 @@ foreach var of varlist hsdrop hsgrad somecoll collgrad {
 qui sum `e(depvar)' if e(sample) 
 local medi `r(mean)'
 
-estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
-qui unique name if e(sample) // Contamos cuantas observaciones hay.
-estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+estadd scalar med=`medi' : regs`c' 
+qui unique name if e(sample) 
+estadd scalar part = `r(unique)': regs`c' 
 
 local estimates`c' `estimates1' regs`c'
 
@@ -1416,74 +1403,19 @@ local estimates`c' `estimates1' regs`c'
 	
 
 *Keep coefficients
-local coefs _cons dism1980 lenper agedum* /*Run this code with the table */
+local coefs _cons dism1980 lenper agedum* 
 
-*-------------------------------------------------------------------------------
-*Tex table
-*Tile of table
-local title_tab "The Effects of 1980 Dissimilarity on Human Capital of 22- To 30-Year-Olds in 1980 (IV)"
-local titles " & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school dropouts }} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school graduates \\}} & \multicolumn{2}{c}{\makecell{Outcome: Share who \\ have some college}} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ college graduates }} \\"
-local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
-
-esttab `estimates1'  using "table5_IV.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
+esttab `estimatesc'  using "table5.tex", 					     ///
+append b(3) nolines se bookt nodepvars nonumbers noobs 	     	 ///
 star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
 eqlabels(none) keep(dism1980) ///
 coeflabels(dism1980 "Dissimilarity Index" ) ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
-nonumbers posthead( " `titles'  `numbers' ")                       ///
-prehead(\begin{table}[H]										 ///
-		\centering 												 ///
-		\scalebox{0.8}{ 											 ///
-		\begin{threeparttable} 									 ///
-	 \caption{`title_tab'} ///
-		\begin{tabular}{lcccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
-		
-
-esttab `estimates1'  using "table5_IV.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) drop(`coefs')                          ///
-stats(med r2, fmt(3 3 0 0) ///
-labels("Mean Dep. Variable" "R Squared")) ///
-collabels(none) nomtitles posthead(\midrule) ///
-postfoot(\bottomrule[0.5pt]  									 ///
-         \label{tab:table2} 								 ///
-         \end{tabular} 											 ///
-		 \vspace{-13pt} 										 ///
-         \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
-         \small 												 ///
-         \item Notes: Robust standard errors clustered at the city level  in  parentheses. Controls for age dummies and total track length per square kilometer. Instrumented variable is 1980 dissimilarity; instrument is RDI.  ///
-         \end{tablenotes} 										 ///
-         \end{threeparttable} 									 /// 
-         } 														 ///
-         \end{table})
-
-/*The eight following regressions are falsification tests of the relationship between RDI (herf) and human capital in cities far from the South (closeness<-400). These estimations are done to prove that the instrument (herf) has no direct effect on human capital. These regressions control for total track lenght (lenper) to assure that RDI (herf) represents the configuration of track conditional on total track. Estimates also control for age levels (agedum* are dummies for group ages from 22 to 30). The standard errors are clustered at the city label (name) to correct for arbitrary nonindependence of observations within a city. */
-
-reg hsdrop herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who are high school dropouts (hsdrop). */
-reg hsdrop herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and  the share of blacks (black==1) who are high school dropouts (hsdrop). */
-reg hsgrad herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who are high school graduates (hsgrad). */
-reg hsgrad herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of blacks (black==1) who are high school graduates (hsgrad). */
-reg somecoll herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who have some college (somecoll). */
-reg somecoll herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of blacks (black==1) who have some college (somecoll). */
-reg collgrad herf lenper agedum* if black==0 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of whites (black==0) who are college graduates (collgrad). */
-reg collgrad herf lenper agedum* if black==1 & closeness<-400, cluster(name) /*Falsification test of the relationship between Railroad Division Index (herf) and the share of blacks (black==1) who are college graduates (collgrad).*/
+collabels(none) nomtitles title(\label(table4)) substitute(\_ _) ///
+posthead( "`panel2'" "\smallskip \\")  ///
+postfoot( "\smallskip \\") ///
 
 
 
-
-
-
-/*The following code exports the previos eight regressions into a .tex table. Basically, it exports the falsifications regressions from table 5. Note: this code does not replicate the exact format presented in the paper, I was unable to replicate said format*/
-
-*Define table content 
-cd "$tables"
-
-*Number of table
-local tab `i'
-di "`tab'"
 
 estimates clear
 local c = 1
@@ -1499,9 +1431,9 @@ foreach var of varlist hsdrop hsgrad somecoll collgrad {
 qui sum `e(depvar)' if e(sample) 
 local medi `r(mean)'
 
-estadd scalar med=`medi' : regs`c' // Recuperamos la media de la variable dependiente.
-qui unique name if e(sample) // Contamos cuantas observaciones hay.
-estadd scalar part = `r(unique)': regs`c' // Guardamos número anterior en un escalar.
+estadd scalar med=`medi' : regs`c'
+qui unique name if e(sample) 
+estadd scalar part = `r(unique)': regs`c' 
 
 local estimates`c' `estimates1' regs`c'
 
@@ -1512,45 +1444,22 @@ local estimates`c' `estimates1' regs`c'
 	
 
 *Keep coefficients
-local coefs _cons herf lenper agedum* /*Run this code with the table */
+local coefs _cons herf lenper agedum* 
 
-*-------------------------------------------------------------------------------
-*Tex table
-*Tile of table
-local title_tab "The Effects of 1980 Dissimilarity on Human Capital of 22- To 30-Year-Olds in 1980 (Falsification)"
-local titles " & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school dropouts }} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ high school graduates \\}} & \multicolumn{2}{c}{\makecell{Outcome: Share who \\ have some college}} & \multicolumn{2}{c}{\makecell{Outcome: Share who are \\ college graduates }} \\"
-local numbers " \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} & Whites & Blacks & Whites & Blacks & Whites & Blacks & Whites & Blacks  \\ \midrule"
-
-esttab `estimates1'  using "table5_falsification.tex", 					     ///
-replace b(3) lines se bookt nodepvars 							 ///
+esttab `estimatesc'  using "table5.tex", 					     ///
+append b(3) nolines se bookt nodepvars nonumbers noobs						 ///
 star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
 eqlabels(none) keep(herf) ///
 coeflabels(herf "RDI" ) ///
-collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///
-nonumbers posthead( " `titles'  `numbers' ")                       ///
-prehead(\begin{table}[H]										 ///
-		\centering 												 ///
-		\scalebox{0.8}{ 											 ///
-		\begin{threeparttable} 									 ///
-	 \caption{`title_tab'} ///
-		\begin{tabular}{lcccccccc} 								 ///
-		\toprule[0.5pt] \toprule[0.5pt])
-		
-
-esttab `estimates1'  using "table5_falsification.tex", 					     ///
-append b(3) plain se bookt nodepvars nonumbers					 ///
-star(* 0.10 ** 0.05 *** 0.01) fragment label                     ///
-eqlabels(none) drop(`coefs')                          ///
-stats(med r2, fmt(3 3 0 0) ///
-labels("Mean Dep. Variable" "R Squared")) ///
-collabels(none) nomtitles posthead(\midrule) ///
+collabels(none) nomtitles title(\label(table2)) substitute(\_ _) ///   
+posthead("\smallskip \\" "`panel3'" "\smallskip \\")  ///              
 postfoot(\bottomrule[0.5pt]  									 ///
          \label{tab:table2} 								 ///
          \end{tabular} 											 ///
 		 \vspace{-13pt} 										 ///
          \begin{tablenotes}[flushleft]{\setlength{\itemindent}{-3pt}} ///
          \small 												 ///
-         \item Notes: Robust standard errors clustered at the city level  in  parentheses. Controls for age dummies and total track length per square kilometer.  ///
+         \item Notes: Robust standard errors, corrected for arbitrary nonindependence of observations within a city, are in parentheses. All 2SLS and reduced form regressions control for total track length per square kilometer. Instrumented variable is 1980 dissimilarity; instrument is RDI. Observations are shares in each educational category within city × single year of age × race cells.  ///
          \end{tablenotes} 										 ///
          \end{threeparttable} 									 /// 
          } 														 ///
