@@ -94,11 +94,11 @@ reg dism1990 herf lenper, robust /* This is the first stage regression that proo
 reg area1910 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects a city's physical area in 1910 (square miles/1000) (area1910). Note: results from this regression are not the ones presented by the author here the variable is not per 1000. Thus, variables need to be changed. */
 
  /*gen per 1,000 variables for regressions 2, 3 and 7 to replicate results from paper:*/
-foreach var in area1910 count1910 passpc {
-	gen `var'_1000 = `var'/1000
-}
+//foreach var in area1910 count1910 passpc {
+//	gen `var'_1000 = `var'/1000
+//}
 
-save "$modified/aej_maindata_modified.dta", replace
+//save "$modified/aej_maindata_modified.dta", replace
 
 reg count1910 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the population in 1910 (count1910). Note: results from this regression are not the ones presented by the author here the variable is not per 1000. Thus, variables need to be changed */
 reg ethseg10 herf lenper, robust /*OLS regression to analyze how the instrument (herf) affects the ethnic dissimilarity index in 1910 (ethseg10)*/
